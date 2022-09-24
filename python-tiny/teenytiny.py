@@ -1,12 +1,30 @@
 import lexer as lex
 
 def main():
-	input = "LET foobar = 123"
-	lexer = lex.Lexer(input)
+  input = "+- # This is a comment!\n */"
+  lexer = lex.Lexer(input)
 
-	while lexer.peek() != '\0':
-		print(lexer.curChar)
-		lexer.nextChar()
+  token = lexer.getToken()
+  token = lexer.getToken()
+  while token.kind != lex.TokenType.EOF:
+    print(token.kind)
+    token = lexer.getToken()
+
+  input = "+- */"
+  lexer = lex.Lexer(input)
+
+  token = lexer.getToken()
+  while token.kind != lex.TokenType.EOF:
+    print(token.kind)
+    token = lexer.getToken()
+
+  input = "+- */ >>= = !="
+  lexer = lex.Lexer(input)
+
+  token = lexer.getToken()
+  while token.kind != lex.TokenType.EOF:
+    print(token.kind)
+    token = lexer.getToken()
 
 if __name__ == '__main__':
   main()
