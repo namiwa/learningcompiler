@@ -38,6 +38,7 @@ impl Lexer {
   }
 
   pub fn next_char(&mut self) -> char {
+    print!("{}", self.curr_char);
     if self.cur_pos >= self.source.len() {
       self.curr_char = '\0';
     } else {
@@ -58,13 +59,13 @@ impl Lexer {
     return self.curr_char
   }
   
-  fn skip_whitespace(&mut self) {
+  pub fn skip_whitespace(&mut self) {
     while self.curr_char == ' ' || self.curr_char == '\t' || self.curr_char == '\r' {
       self.next_char();
     }
   }
 
-  fn skip_comments(&mut self) {
+  pub fn skip_comments(&mut self) {
     if self.curr_char == '#' {
       while self.curr_char != '\n' {
         self.next_char();
@@ -155,7 +156,7 @@ pub enum TokenType {
   EOF = -1,
 	NEWLINE = 0,
 	NUMBER = 1,
-	IDENT = 2,
+	INDENT = 2,
 	STRING = 3,
 	// Keywords.
 	LABEL = 101,
@@ -182,3 +183,36 @@ pub enum TokenType {
 	GT = 210,
 	GTEQ = 211
 }
+
+impl fmt::Display for TokenType {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    match &*self {
+      TokenType::EOF => write!(f, "EOF"),
+      TokenType::NEWLINE => write!(f, "NEWLINE"),
+      TokenType::NUMBER => write!(f, "NUMBER"),
+      TokenType::INDENT => write!(f, "INDENT"),
+      TokenType::STRING => write!(f, "STRING"),
+      TokenType::LABEL => write!(f, "LABEL"),
+      TokenType::GOTO => write!(f, "GOTO"),
+      TokenType::PRINT => write!(f, "PRINT"),
+      TokenType::INPUT => write!(f, "INPUT"),
+      TokenType::LET => write!(f, "LET"),
+      TokenType::IF => write!(f, "IF"),
+      TokenType::THEN => write!(f, "THEN"),
+      TokenType::ENDIF => write!(f, "ENDIF"),
+      TokenType::WHILE => write!(f, "WHILE"),
+      TokenType::REPEAT => write!(f, "REPEAT"),
+      TokenType::ENDWHILE => write!(f, "ENDWHILE"),
+      TokenType::EQ => write!(f, "EQ"),
+      TokenType::PLUS => write!(f, "PLUS"),
+      TokenType::MINUS => write!(f, "MINUS"),
+      TokenType::ASTERISK => write!(f, "ASTERISK"),
+      TokenType::SLASH => write!(f, "SLASH"),
+      TokenType::EQEQ => write!(f, "EQEQ"),
+      TokenType::NOTEQ => write!(f, "NOTEQ"),
+      TokenType::LT => write!(f, "LT"),
+      TokenType::LTEQ => write!(f, "LTEQ"),
+      TokenType::GT => write!(f, "GT"),
+      TokenType::GTEQ => write!(f, "GTEQ")
+    }
+}}
