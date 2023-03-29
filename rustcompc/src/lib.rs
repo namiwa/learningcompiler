@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{fmt, ops::Index};
 
 
 // Define our error types. These may be customized for our error handling cases.
@@ -38,13 +38,13 @@ impl Lexer {
   }
 
   pub fn next_char(&mut self) -> char {
-    print!("{}", self.curr_char);
+    println!("fn next_char: curr_char -> {}", self.curr_char);
     if self.cur_pos >= self.source.len() {
       self.curr_char = '\0';
     } else {
+      let byte = self.source.chars().nth(self.cur_pos).unwrap();
+      self.curr_char = byte;
       self.cur_pos =  self.cur_pos + 1;
-      let byte = self.source.as_bytes()[self.cur_pos];
-      self.curr_char = byte as char;
     }
     self.curr_char
   }
@@ -76,6 +76,7 @@ impl Lexer {
   pub fn get_token(&mut self) -> Token {
     self.skip_comments();
     self.skip_whitespace();
+    println!("get_token: self.source: {} self.cur_pos: {} self.curr_char: {}", self.source, self.cur_pos, self.curr_char);
     let token: Result<Token> = match self.next_char() {
       '+' => Ok(Token { text: self.curr_char.to_string(), kind: TokenType::PLUS }),
       '-' => Ok(Token { text: self.curr_char.to_string(), kind: TokenType::MINUS }),
@@ -152,6 +153,7 @@ pub struct Token {
   pub kind: TokenType,
 }
 
+#[derive(PartialEq, Debug)]
 pub enum TokenType {
   EOF = -1,
 	NEWLINE = 0,
@@ -216,3 +218,27 @@ impl fmt::Display for TokenType {
       TokenType::GTEQ => write!(f, "GTEQ")
     }
 }}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn it_parses_tokens() {
+    let test_statement = String::from("+- *");
+    let valid_tokens = vec![
+      TokenType::PLUS,
+      TokenType::MINUS,
+      TokenType::ASTERISK
+    ];
+  
+    let mut lexer = Lexer::build_lexer(test_statement);
+    let mut index = 0;
+
+    while index < valid_tokens.len() && lexer.get_token().kind != TokenType::EOF {
+      let token = lexer.get_token();
+      assert_eq!(token.kind, valid_tokens[index]);
+      index += 1;
+    }
+  }
+}

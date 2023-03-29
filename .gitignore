@@ -1,2 +1,3 @@
 *.pyc
 rustcompc/target
+.DS_Store
