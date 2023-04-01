@@ -7,11 +7,11 @@ then
     exit
 fi
 
-# helpers
+# build game  
+echo "Compling Game"
+clang++ --std=c++17 -fdiagnostics-color=always -Wall -g -I./dependacies/include -L./dependacies/library ./src/*.cpp ./dependacies/library/libglfw.3.3.dylib -o game_app -framework OpenGl -framework Cocoa -framework IOKit -framework CoreVideo -framework CoreFoundation -Wno-deprecated
 
-# Function to execute commands
-exe() { echo "\$ $@" ; "$@"; }
-
-clang++ --std=c++17 -fdiagnostics-color=always -Wall -g -I/dependacies/include -L/dependacies/library *.cpp ./dependacies/library/libglfw.3.3.dylib -o game_app -framework OpenGl -framework Cocoa -framework IOKit -framework CoreVideo -framework CoreFoundation -Wno-deprecated
-game_app
+# run game
+echo "Running Game, Check window"
+./game_app
 

@@ -1,0 +1,4 @@
+-I./dependacies/include
+-lglfw
+-L./dependacies/library
+./dependacies/library/libglfw.3.3.dylib
