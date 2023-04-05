@@ -5,3 +5,6 @@
 3. Working through [Crafting Intepreters book](https://craftinginterpreters.com/introduction.html)
   * Java (Correctness)
   * C (Fast + Correct)
+4. cpp-game-engine
+  * learning to build a game engine from scratch
+  * currently going through basics of learnopengl
