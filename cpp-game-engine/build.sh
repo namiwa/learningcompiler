@@ -7,6 +7,13 @@ then
     exit
 fi
 
+if [[ -x "game_app" ]]
+then
+    echo "Previous game build exists, deleting..."
+    rm ./game_app
+    rm -rf game_app.dSYM/
+fi
+
 # build game  
 echo "Compling Game"
 clang++ -v --std=c++17 -fdiagnostics-color=always -Wall -g -I./dependacies/include -L./dependacies/library ./src/*.c ./src/*.cpp ./dependacies/library/libglfw.3.3.dylib -o game_app -framework OpenGl -framework Cocoa -framework IOKit -framework CoreVideo -framework CoreFoundation -Wno-deprecated
