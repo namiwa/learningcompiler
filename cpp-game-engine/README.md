@@ -10,6 +10,14 @@ This documents the beginning of learning game development from scratch. Starting
 - tying it all together with an entity control system (somehow??)
 
 
+## Supported Platforms
+
+### MacOS
+Get the required osx developer tool chain from xcode
+
+### Ubuntu (WSL)
+isntall the `freeglut3-dev` package
+
 ## References
 
 https://learnopengl.com/Getting-started/Hello-Triangle
