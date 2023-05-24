@@ -16,7 +16,7 @@ This documents the beginning of learning game development from scratch. Starting
 Get the required osx developer tool chain from xcode
 
 ### Ubuntu (WSL)
-isntall the `freeglut3-dev` package
+install the `freeglut3-dev` package, basically the basics for OpenGl, Glad & GLFW support!
 
 ## References
 

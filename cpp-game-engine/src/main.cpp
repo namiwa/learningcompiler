@@ -1,42 +1,60 @@
+#include <iostream>
+
+#if defined(__linux__)
+#include <GLES/gl.h>
+#include <GLFW/glfw3.h>
+#include <glad/glad.h>
+#elif defined(__APPLE__) && defined(__MACH__)
+#include <TargetConditionals.h>
+#if TARGET_OS_MAC == 1
 #include <OpenGL/OpenGL.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <iostream>
+#else
+std::cout << "Not supported non mac-os platform" << std::endl;
+return 1;
+#endif
+#else
+std::cout << "Un-supported platform!" << std::endl;
+#endif
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+void framebuffer_size_callback(GLFWwindow *window, int width, int height)
+{
     glViewport(0, 0, width, height);
-} 
+}
 
-void processInput(GLFWwindow* window) {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+void processInput(GLFWwindow *window)
+{
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    {
         glfwSetWindowShouldClose(window, true);
     }
 }
 
-
 const char *vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
-"{\n"
-" gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"}\0";
+                                 "layout (location = 0) in vec3 aPos;\n"
+                                 "void main()\n"
+                                 "{\n"
+                                 " gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+                                 "}\0";
 
 const char *fragmentShaderSource = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-" FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-"}\0";
+                                   "out vec4 FragColor;\n"
+                                   "void main()\n"
+                                   "{\n"
+                                   " FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+                                   "}\0";
 
 /**
  * within the hour, before i sleep, create a window in C++.
  */
 int main(void)
 {
-    GLFWwindow* window;
+    GLFWwindow *window;
     /* init library*/
     auto glfwInt = glfwInit();
-    if (!glfwInt) {
+    if (!glfwInt)
+    {
         std::cout << "Failed to init GLFW" << std::endl;
         return -1;
     }
@@ -46,7 +64,8 @@ int main(void)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     window = glfwCreateWindow(800, 600, "Hello World!", nullptr, nullptr);
-    if (!window) {
+    if (!window)
+    {
         glfwTerminate();
         std::cout << "Failed to init GLFW window" << std::endl;
         return -1;
@@ -54,7 +73,8 @@ int main(void)
     glfwMakeContextCurrent(window);
     int glStatus = gladLoadGL();
     glViewport(0, 0, 800, 600);
-    if (!glStatus) {
+    if (!glStatus)
+    {
         glfwTerminate();
         std::cout << "Failed to init GLAD OpenGL" << std::endl;
         return -1;
@@ -62,16 +82,16 @@ int main(void)
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     float vertices[] = {
-        0.5f,  0.5f, 0.0f, // top right
-        0.5f, -0.5f, 0.0f, // bottom right
+        0.5f, 0.5f, 0.0f,   // top right
+        0.5f, -0.5f, 0.0f,  // bottom right
         -0.5f, -0.5f, 0.0f, // bottom left
-        -0.5f,  0.5f, 0.0f  // top left
+        -0.5f, 0.5f, 0.0f   // top left
     };
-    unsigned int indices[] = { // note that we start from 0!
+    unsigned int indices[] = {
+        // note that we start from 0!
         0, 1, 3, // first triangle
         1, 2, 3  // second triangle
     };
-
 
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
@@ -83,7 +103,6 @@ int main(void)
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    
     unsigned int EBO;
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -96,10 +115,12 @@ int main(void)
 
     int success;
     char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS,  &success);
-    if (!success) {
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    if (!success)
+    {
         glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
+                  << infoLog << std::endl;
     }
 
     unsigned int fragmentShader;
@@ -109,20 +130,22 @@ int main(void)
 
     unsigned int shaderProgram;
     shaderProgram = glCreateProgram();
-    
+
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
 
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
+    if (!success)
+    {
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
     }
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
 
-    while(!glfwWindowShouldClose(window)) {
+    while (!glfwWindowShouldClose(window))
+    {
         processInput(window);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -143,14 +166,14 @@ int main(void)
     return 0;
 }
 
-  // c++: user memory management
-  /**
-  there are 2 types of memory, stack and heap.
-  stack is static, allocated at run time.
-  
-  stack faster than heap.
-  stack is automatically cleared when scope is left.
-  reference --> safe operation meaning that it points to some data
-  ie it can never point to nothing / nullptr
-  by default, everything is pass by value
-  */
+// c++: user memory management
+/**
+there are 2 types of memory, stack and heap.
+stack is static, allocated at run time.
+
+stack faster than heap.
+stack is automatically cleared when scope is left.
+reference --> safe operation meaning that it points to some data
+ie it can never point to nothing / nullptr
+by default, everything is pass by value
+*/
