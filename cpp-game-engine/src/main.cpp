@@ -46,7 +46,7 @@ const char *fragmentShaderSource = "#version 330 core\n"
                                    "}\0";
 
 /**
- * within the hour, before i sleep, create a window in C++.
+ * Main entry point for window. 
  */
 int main(void)
 {
@@ -82,15 +82,16 @@ int main(void)
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     float vertices[] = {
-        0.5f, 0.5f, 0.0f,   // top right
-        0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f, // bottom left
-        -0.5f, 0.5f, 0.0f   // top left
+        -0.5f, 0.5f, 0.0f,
+        -1.0f, -0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+        0.5f, 0.5f, 0.0f,
+        1.0f, 0.0f, 0.0f,
     };
     unsigned int indices[] = {
         // note that we start from 0!
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
+        0, 1, 2, // first triangle
+        2, 3, 4  // second triangle
     };
 
     unsigned int VAO;
