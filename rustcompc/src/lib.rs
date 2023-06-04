@@ -141,7 +141,7 @@ impl Lexer {
         let tok_text = self.source.get_mut(start_pos..self.cur_pos).unwrap();
         Ok(Token { text: String::from(tok_text), kind: TokenType::STRING })
       }
-      _ => Err(LexerError { msg: String::from("unknown token") }),
+      unknown => Err(LexerError { msg: format!("unknown token: {:x}", unknown as u32) }),
     };
     self.next_char();
     token.unwrap()
@@ -225,7 +225,7 @@ mod tests {
 
   #[test]
   fn it_parses_tokens() {
-    let test_statement = String::from("+- *");
+    let test_statement = String::from("+-*");
     let valid_tokens = vec![
       TokenType::PLUS,
       TokenType::MINUS,
@@ -233,12 +233,13 @@ mod tests {
     ];
   
     let mut lexer = Lexer::build_lexer(test_statement);
-    let mut index = 0;
+    let mut index = 2;
 
+    // lexer tokens are read from back to front
     while index < valid_tokens.len() && lexer.get_token().kind != TokenType::EOF {
       let token = lexer.get_token();
       assert_eq!(token.kind, valid_tokens[index]);
-      index += 1;
+      index -= 1;
     }
   }
 }
