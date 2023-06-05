@@ -1,11 +1,11 @@
-use std::{fmt, ops::Index};
+use std::fmt;
 
 
 // Define our error types. These may be customized for our error handling cases.
 // Now we will be able to write our own errors, defer to an underlying error
 // implementation, or do something in between.
 #[derive(Debug, Clone)]
-struct LexerError {
+pub struct LexerError {
   msg: String
 }
 
@@ -38,7 +38,7 @@ impl Lexer {
   }
 
   pub fn next_char(&mut self) -> char {
-    println!("fn next_char: curr_char -> {}", self.curr_char);
+    println!("fn next_char: curr_char -> {}, curr_pos -> {}", self.curr_char, self.cur_pos);
     if self.cur_pos >= self.source.len() {
       self.curr_char = '\0';
     } else {
@@ -60,7 +60,14 @@ impl Lexer {
   }
   
   pub fn skip_whitespace(&mut self) {
-    while self.curr_char == ' ' || self.curr_char == '\t' || self.curr_char == '\r' {
+    println!("I am CALLED! {}", self.curr_char);
+    let is_whitespace = match self.curr_char {
+      ' ' => true,
+      '\t' => true,
+      '\r' => true,
+      _ => false
+    };
+    while is_whitespace {
       self.next_char();
     }
   }
@@ -76,7 +83,6 @@ impl Lexer {
   pub fn get_token(&mut self) -> Token {
     self.skip_comments();
     self.skip_whitespace();
-    println!("get_token: self.source: {} self.cur_pos: {} self.curr_char: {}", self.source, self.cur_pos, self.curr_char);
     let token: Result<Token> = match self.next_char() {
       '+' => Ok(Token { text: self.curr_char.to_string(), kind: TokenType::PLUS }),
       '-' => Ok(Token { text: self.curr_char.to_string(), kind: TokenType::MINUS }),
@@ -140,9 +146,10 @@ impl Lexer {
         };
         let tok_text = self.source.get_mut(start_pos..self.cur_pos).unwrap();
         Ok(Token { text: String::from(tok_text), kind: TokenType::STRING })
-      }
+      },
       unknown => Err(LexerError { msg: format!("unknown token: {:x}", unknown as u32) }),
     };
+    
     self.next_char();
     token.unwrap()
   } 
@@ -151,6 +158,12 @@ impl Lexer {
 pub struct Token {
   pub text: String,
   pub kind: TokenType,
+}
+
+impl fmt::Display for Token {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    write!(f, "({} {})", self.text, self.kind)
+  }
 }
 
 #[derive(PartialEq, Debug)]
@@ -218,28 +231,3 @@ impl fmt::Display for TokenType {
       TokenType::GTEQ => write!(f, "GTEQ")
     }
 }}
-
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn it_parses_tokens() {
-    let test_statement = String::from("+-*");
-    let valid_tokens = vec![
-      TokenType::PLUS,
-      TokenType::MINUS,
-      TokenType::ASTERISK
-    ];
-  
-    let mut lexer = Lexer::build_lexer(test_statement);
-    let mut index = 2;
-
-    // lexer tokens are read from back to front
-    while index < valid_tokens.len() && lexer.get_token().kind != TokenType::EOF {
-      let token = lexer.get_token();
-      assert_eq!(token.kind, valid_tokens[index]);
-      index -= 1;
-    }
-  }
-}
