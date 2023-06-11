@@ -67,7 +67,6 @@ impl Lexer {
             while self.curr_char != '\n' {
                 self.next_char();
             }
-            self.next_char();
         }
     }
 
@@ -75,7 +74,7 @@ impl Lexer {
         self.next_char();
         self.skip_comments();
         self.skip_whitespace();
-        let token: Result<Token> = match self.next_char() {
+        let token: Result<Token> = match self.curr_char {
             '+' => Ok(Token {
                 text: self.curr_char.to_string(),
                 kind: TokenType::PLUS,
@@ -172,7 +171,7 @@ impl Lexer {
                         '%' => Err(LexerError {
                             msg: String::from("invalid percentage character"),
                         }),
-                        _default => {
+                        _ => {
                             self.next_char();
                             Ok(self.curr_char)
                         }
