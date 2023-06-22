@@ -1,3 +1,4 @@
+// based on tiny lexer tutorial in python from  
 use std::fmt;
 
 // Define our error types. These may be customized for our error handling cases.
@@ -183,7 +184,30 @@ impl Lexer {
                     text: String::from(tok_text),
                     kind: TokenType::STRING,
                 })
-            }
+            },
+            c if c.is_numeric() => {
+                let start_pos = self.cur_pos;
+                while self.peek().is_numeric() {
+                    self.next_char();
+                }
+                if self.peek() == '.' {
+                    self.next_char();
+                    if !self.peek().is_numeric() {
+                        let val = Err(LexerError { 
+                            msg: format!("Illegal char in number")  
+                        });
+                        val.unwrap()
+                    }
+                }
+                while self.peek().is_numeric() {
+                    self.next_char();
+                }
+                let number_text = &self.source[start_pos..self.cur_pos + 1];
+                Ok(Token {
+                    text: number_text.to_string(),
+                    kind: TokenType::NUMBER
+                })
+            },
             unknown => Err(LexerError {
                 msg: format!("unknown token: {:x}", unknown as u32),
             }),

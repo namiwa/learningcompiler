@@ -10,6 +10,7 @@ mod tests {
         // lexer tokens are read from back to front
         while index < valid_tokens.len() {
             let token = lexer.get_token();
+            println!("{}", token);
             assert_eq!(token.kind, valid_tokens[index]);
             index += 1;
         }
@@ -27,5 +28,20 @@ mod tests {
         let test_statement = String::from("\"testing str\"");
         let valid_tokens = vec![TokenType::STRING, TokenType::EOF];
         lexer_tester(test_statement, valid_tokens)
+    }
+
+    #[test]
+    fn it_parses_numbers() {
+        let test_statement = String::from("12.34 * 456");
+        let valid_tokens = vec![TokenType::NUMBER, TokenType::NUMBER, TokenType::ASTERISK];
+        lexer_tester(test_statement, valid_tokens);
+
+        let test_statement = String::from("1234 + 6");
+        let valid_tokens = vec![TokenType::NUMBER, TokenType::NUMBER, TokenType::PLUS];
+        lexer_tester(test_statement, valid_tokens);
+
+        let test_statement = String::from("\"testing a string\" 1122");
+        let valid_tokens = vec![TokenType::STRING, TokenType::NUMBER];
+        lexer_tester(test_statement, valid_tokens);
     }
 }
