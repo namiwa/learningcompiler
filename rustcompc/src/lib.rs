@@ -153,7 +153,10 @@ impl Lexer {
             },
             '\"' => {
                 self.next_char();
-                let start_pos = self.cur_pos;
+                let start_pos = match self.cur_pos {
+                    0 => { 0 },
+                    _ => { self.cur_pos - 1 } 
+                };
 
                 while self.curr_char != '\"' {
                     let val = match self.curr_char {
@@ -179,27 +182,34 @@ impl Lexer {
                     };
                     val.unwrap();
                 }
-                let tok_text = self.source.get_mut(start_pos..self.cur_pos).unwrap();
+                let tok_text = self.source.get_mut(start_pos..self.cur_pos-1).unwrap();
                 Ok(Token {
                     text: String::from(tok_text),
                     kind: TokenType::STRING,
                 })
             },
-            c if c.is_numeric() => {
-                let start_pos = self.cur_pos;
-                while self.peek().is_numeric() {
+            c if c.is_ascii_digit() => {
+                let start_pos = match self.cur_pos {
+                    0 => {
+                        0
+                    },
+                    _ => {
+                        self.cur_pos - 1
+                    }
+                };
+                while self.peek().is_ascii_digit() {
                     self.next_char();
                 }
                 if self.peek() == '.' {
                     self.next_char();
-                    if !self.peek().is_numeric() {
+                    if !self.peek().is_ascii_digit() {
                         let val = Err(LexerError { 
                             msg: format!("Illegal char in number")  
                         });
                         val.unwrap()
                     }
                 }
-                while self.peek().is_numeric() {
+                while self.peek().is_ascii_digit() {
                     self.next_char();
                 }
                 let number_text = &self.source[start_pos..self.cur_pos + 1];
