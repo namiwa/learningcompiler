@@ -212,7 +212,8 @@ impl Lexer {
                 while self.peek().is_ascii_digit() {
                     self.next_char();
                 }
-                let number_text = &self.source[start_pos..self.cur_pos + 1];
+                let number_text = &self.source[start_pos..self.cur_pos + 1].to_string();
+                self.next_char();
                 Ok(Token {
                     text: number_text.to_string(),
                     kind: TokenType::NUMBER

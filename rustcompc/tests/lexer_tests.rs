@@ -33,11 +33,11 @@ mod tests {
     #[test]
     fn it_parses_numbers() {
         let test_statement = String::from("12.34 * 456");
-        let valid_tokens = vec![TokenType::NUMBER, TokenType::NUMBER, TokenType::ASTERISK];
+        let valid_tokens = vec![TokenType::NUMBER, TokenType::ASTERISK, TokenType::NUMBER];
         lexer_tester(test_statement, valid_tokens);
 
         let test_statement = String::from("1234 + 6");
-        let valid_tokens = vec![TokenType::NUMBER, TokenType::NUMBER, TokenType::PLUS];
+        let valid_tokens = vec![TokenType::NUMBER, TokenType::PLUS, TokenType::NUMBER];
         lexer_tester(test_statement, valid_tokens);
 
         let test_statement = String::from("\"testing a string\" 1122");
