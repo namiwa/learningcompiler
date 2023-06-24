@@ -53,8 +53,7 @@ impl Lexer {
         }
 
         let byte = self.source.as_bytes()[self.cur_pos + 1];
-        self.curr_char = byte as char;
-        return self.curr_char;
+        byte as char
     }
 
     pub fn skip_whitespace(&mut self) {
@@ -100,57 +99,68 @@ impl Lexer {
                 text: self.curr_char.to_string(),
                 kind: TokenType::EOF,
             }),
-            '=' => match self.peek() {
-                '=' => {
-                    self.next_char();
-                    Ok(Token {
-                        text: self.curr_char.to_string(),
-                        kind: TokenType::EQEQ,
-                    })
+            '=' => {
+                self.skip_whitespace();
+                match self.peek() {
+                    '=' => {
+                        self.next_char();
+                        Ok(Token {
+                            text: String::from("=="),
+                            kind: TokenType::EQEQ,
+                        })
+                    }
+                    _ => Ok(Token {
+                        text: String::from("="),
+                        kind: TokenType::EQ,
+                    }),
                 }
-                _ => Ok(Token {
-                    text: self.curr_char.to_string(),
-                    kind: TokenType::EQ,
-                }),
-            },
-            '>' => match self.peek() {
-                '=' => {
+            }
+            '>' => {
+                self.skip_whitespace();
+                if self.peek() == '=' {
                     self.next_char();
                     Ok(Token {
-                        text: self.curr_char.to_string(),
+                        text: String::from(">="),
                         kind: TokenType::GTEQ,
                     })
-                }
-                _ => Ok(Token {
-                    text: self.curr_char.to_string(),
-                    kind: TokenType::GT,
-                }),
-            },
-            '<' => match self.peek() {
-                '=' => {
-                    self.next_char();
+                } else {
                     Ok(Token {
-                        text: self.curr_char.to_string(),
-                        kind: TokenType::LTEQ,
+                        text: String::from(">"),
+                        kind: TokenType::GT,
                     })
                 }
-                _ => Ok(Token {
-                    text: self.curr_char.to_string(),
-                    kind: TokenType::LT,
-                }),
-            },
-            '!' => match self.peek() {
-                '=' => {
-                    self.next_char();
-                    Ok(Token {
-                        text: self.curr_char.to_string(),
-                        kind: TokenType::NOTEQ,
-                    })
+            }
+            '<' => {
+                self.skip_whitespace();
+                match self.peek() {
+                    '=' => {
+                        self.next_char();
+                        Ok(Token {
+                            text: String::from("<="),
+                            kind: TokenType::LTEQ,
+                        })
+                    }
+                    _ => Ok(Token {
+                        text: String::from("<"),
+                        kind: TokenType::LT,
+                    }),
                 }
-                _ => Err(LexerError {
-                    msg: String::from("! not valid without ="),
-                }),
-            },
+            }
+            '!' => {
+                self.skip_whitespace();
+                match self.peek() {
+                    '=' => {
+                        self.next_char();
+                        Ok(Token {
+                            text: String::from("!="),
+                            kind: TokenType::NOTEQ,
+                        })
+                    }
+                    _ => Err(LexerError {
+                        msg: String::from("! not valid without ="),
+                    }),
+                }
+            }
             '\"' => {
                 self.next_char();
                 let start_pos = match self.cur_pos {
