@@ -61,4 +61,15 @@ mod tests {
         ];
         lexer_tester(test_statement, valid_tokens, true)
     }
+
+    #[test]
+    fn it_parses_keywords() {
+        let test_statement = String::from("LET IF THEN");
+        let valid_tokens = vec![
+            TokenType::LET,
+            TokenType::IF,
+            TokenType::THEN,
+        ];
+        lexer_tester(test_statement, valid_tokens, true)
+    }
 }

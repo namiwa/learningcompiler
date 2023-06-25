@@ -53,7 +53,8 @@ impl Lexer {
         }
 
         let byte = self.source.as_bytes()[self.cur_pos + 1];
-        byte as char
+        self.curr_char = byte as char;
+        return self.curr_char;
     }
 
     pub fn skip_whitespace(&mut self) {
@@ -99,68 +100,57 @@ impl Lexer {
                 text: self.curr_char.to_string(),
                 kind: TokenType::EOF,
             }),
-            '=' => {
-                self.skip_whitespace();
-                match self.peek() {
-                    '=' => {
-                        self.next_char();
-                        Ok(Token {
-                            text: String::from("=="),
-                            kind: TokenType::EQEQ,
-                        })
-                    }
-                    _ => Ok(Token {
-                        text: String::from("="),
-                        kind: TokenType::EQ,
-                    }),
-                }
-            }
-            '>' => {
-                self.skip_whitespace();
-                if self.peek() == '=' {
+            '=' => match self.peek() {
+                '=' => {
                     self.next_char();
                     Ok(Token {
-                        text: String::from(">="),
+                        text: self.curr_char.to_string(),
+                        kind: TokenType::EQEQ,
+                    })
+                }
+                _ => Ok(Token {
+                    text: self.curr_char.to_string(),
+                    kind: TokenType::EQ,
+                }),
+            },
+            '>' => match self.peek() {
+                '=' => {
+                    self.next_char();
+                    Ok(Token {
+                        text: self.curr_char.to_string(),
                         kind: TokenType::GTEQ,
                     })
-                } else {
+                }
+                _ => Ok(Token {
+                    text: self.curr_char.to_string(),
+                    kind: TokenType::GT,
+                }),
+            },
+            '<' => match self.peek() {
+                '=' => {
+                    self.next_char();
                     Ok(Token {
-                        text: String::from(">"),
-                        kind: TokenType::GT,
+                        text: self.curr_char.to_string(),
+                        kind: TokenType::LTEQ,
                     })
                 }
-            }
-            '<' => {
-                self.skip_whitespace();
-                match self.peek() {
-                    '=' => {
-                        self.next_char();
-                        Ok(Token {
-                            text: String::from("<="),
-                            kind: TokenType::LTEQ,
-                        })
-                    }
-                    _ => Ok(Token {
-                        text: String::from("<"),
-                        kind: TokenType::LT,
-                    }),
+                _ => Ok(Token {
+                    text: self.curr_char.to_string(),
+                    kind: TokenType::LT,
+                }),
+            },
+            '!' => match self.peek() {
+                '=' => {
+                    self.next_char();
+                    Ok(Token {
+                        text: self.curr_char.to_string(),
+                        kind: TokenType::NOTEQ,
+                    })
                 }
-            }
-            '!' => {
-                self.skip_whitespace();
-                match self.peek() {
-                    '=' => {
-                        self.next_char();
-                        Ok(Token {
-                            text: String::from("!="),
-                            kind: TokenType::NOTEQ,
-                        })
-                    }
-                    _ => Err(LexerError {
-                        msg: String::from("! not valid without ="),
-                    }),
-                }
-            }
+                _ => Err(LexerError {
+                    msg: String::from("! not valid without ="),
+                }),
+            },
             '\"' => {
                 self.next_char();
                 let start_pos = match self.cur_pos {
@@ -229,6 +219,28 @@ impl Lexer {
                     kind: TokenType::NUMBER
                 })
             },
+            c if c.is_ascii_alphabetic() => {
+                let start_pos = self.cur_pos; 
+                while self.peek().is_ascii_alphabetic() {
+                    self.next_char();
+                };
+                let end_pos = match self.cur_pos {
+                    0 => 0,
+                    _ => self.cur_pos - 1
+                };
+                let token_text = &self.source[start_pos..end_pos].to_string();
+                let is_keyword = TokenType::is_keyword(token_text.clone());
+                if is_keyword != TokenType::UNKNOWN {
+                    Ok(Token {
+                        text: token_text.clone(),
+                        kind: is_keyword
+                    })
+                } else {
+                    Err(LexerError { 
+                        msg: format!("unknown keyword encountered {}", token_text) 
+                    })
+                }
+            }
             unknown => Err(LexerError {
                 msg: format!("unknown token: {:x}", unknown as u32),
             }),
@@ -279,6 +291,26 @@ pub enum TokenType {
     LTEQ = 209,
     GT = 210,
     GTEQ = 211,
+
+    // unknown
+    UNKNOWN = 999
+}
+
+impl TokenType {
+    pub fn is_keyword(token_text: String) -> TokenType {
+        match token_text {
+            c if c == String::from("LABEL") => TokenType::LABEL,
+            c if c == String::from("GOTO") => TokenType::GOTO,
+            c if c == String::from("PRINT") => TokenType::PRINT,
+            c if c == String::from("INPUT") => TokenType::INPUT,
+            c if c == String::from("IF") => TokenType::IF,
+            c if c == String::from("THEN") => TokenType::THEN,
+            c if c == String::from("WHILE") => TokenType::WHILE,
+            c if c == String::from("REPEAT") => TokenType::REPEAT,
+            c if c == String::from("ENDWHILE") => TokenType::ENDWHILE,
+            _ => TokenType::UNKNOWN
+        }
+    }
 }
 
 impl fmt::Display for TokenType {
@@ -311,6 +343,7 @@ impl fmt::Display for TokenType {
             TokenType::LTEQ => write!(f, "LTEQ"),
             TokenType::GT => write!(f, "GT"),
             TokenType::GTEQ => write!(f, "GTEQ"),
+            TokenType::UNKNOWN => write!(f, "UNKNOWN")
         }
     }
 }
