@@ -220,24 +220,28 @@ impl Lexer {
                 })
             },
             c if c.is_ascii_alphabetic() => {
-                let start_pos = self.cur_pos; 
+                let start_pos = match self.cur_pos {
+                    0 => {
+                        0
+                    },
+                    _ => {
+                        self.cur_pos - 1
+                    }
+                };
                 while self.peek().is_ascii_alphabetic() {
                     self.next_char();
                 };
-                let end_pos = match self.cur_pos {
-                    0 => 0,
-                    _ => self.cur_pos - 1
-                };
-                let token_text = &self.source[start_pos..end_pos].to_string();
-                let is_keyword = TokenType::is_keyword(token_text.clone());
+                let token_text = &self.source[start_pos..self.cur_pos+1].to_string();
+                let is_keyword = TokenType::get_keyword_type(token_text.clone());
                 if is_keyword != TokenType::UNKNOWN {
+                    self.next_char();
                     Ok(Token {
                         text: token_text.clone(),
                         kind: is_keyword
                     })
                 } else {
                     Err(LexerError { 
-                        msg: format!("unknown keyword encountered {}", token_text) 
+                        msg: format!("unknown keyword encountered {}", token_text.to_string()) 
                     })
                 }
             }
@@ -297,7 +301,7 @@ pub enum TokenType {
 }
 
 impl TokenType {
-    pub fn is_keyword(token_text: String) -> TokenType {
+    pub fn get_keyword_type(token_text: String) -> TokenType {
         match token_text {
             c if c == String::from("LABEL") => TokenType::LABEL,
             c if c == String::from("GOTO") => TokenType::GOTO,
@@ -308,6 +312,8 @@ impl TokenType {
             c if c == String::from("WHILE") => TokenType::WHILE,
             c if c == String::from("REPEAT") => TokenType::REPEAT,
             c if c == String::from("ENDWHILE") => TokenType::ENDWHILE,
+            c if c == String::from("LET") => TokenType::LET,
+            c if c.contains(char::is_whitespace) => TokenType::INDENT,
             _ => TokenType::UNKNOWN
         }
     }
