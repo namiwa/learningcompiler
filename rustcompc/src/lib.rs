@@ -103,12 +103,12 @@ impl Lexer {
                 '=' => {
                     self.next_char();
                     Ok(Token {
-                        text: self.curr_char.to_string(),
+                        text: String::from("=="),
                         kind: TokenType::EQEQ,
                     })
                 }
                 _ => Ok(Token {
-                    text: self.curr_char.to_string(),
+                    text: String::from("="),
                     kind: TokenType::EQ,
                 }),
             },
@@ -144,7 +144,7 @@ impl Lexer {
                 '=' => {
                     self.next_char();
                     Ok(Token {
-                        text: self.curr_char.to_string(),
+                        text: String::from("!="),
                         kind: TokenType::NOTEQ,
                     })
                 }
