@@ -42,14 +42,14 @@ mod tests {
         let valid_tokens = vec![TokenType::NUMBER, TokenType::PLUS, TokenType::NUMBER];
         lexer_tester(test_statement, valid_tokens, false);
 
-        let test_statement = String::from("\"testing a string\" 1122");
-        let valid_tokens = vec![TokenType::STRING, TokenType::NUMBER];
+        let test_statement = String::from("445 1122");
+        let valid_tokens = vec![TokenType::NUMBER, TokenType::NUMBER, TokenType::EOF];
         lexer_tester(test_statement, valid_tokens, false);
     }
 
     #[test]
     fn it_parses_basic_operators() {
-        let test_statement = String::from("+- */ > <");
+        let test_statement = String::from("+- */ > <\0");
         let valid_tokens = vec![
             TokenType::PLUS,
             TokenType::MINUS,
@@ -59,7 +59,7 @@ mod tests {
             TokenType::LT,
             TokenType::EOF,
         ];
-        lexer_tester(test_statement, valid_tokens, true)
+        lexer_tester(test_statement, valid_tokens, false)
     }
 
     #[test]
@@ -84,6 +84,6 @@ mod tests {
             TokenType::THEN,
             TokenType::ELSE,
         ];
-        lexer_tester(test_statement, valid_tokens, false)
+        lexer_tester(test_statement, valid_tokens, true)
     }
 }

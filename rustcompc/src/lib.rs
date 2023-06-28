@@ -38,11 +38,12 @@ impl Lexer {
     }
 
     pub fn next_char(&mut self) -> char {
-        if self.cur_pos >= self.source.len() {
+        if self.cur_pos + 1 >= self.source.len() {
             self.curr_char = '\0';
         } else {
-            self.curr_char = self.source.chars().nth(self.cur_pos).unwrap();
             self.cur_pos = self.cur_pos + 1;
+            let res = self.source.as_bytes()[self.cur_pos];
+            self.curr_char = res as char;
         }
         self.curr_char
     }
@@ -126,7 +127,6 @@ impl Lexer {
                 }
             }
             '<' => {
-                println!("{} {}", self.cur_pos, self.curr_char);
                 if self.peek() == '=' {
                     self.next_char();
                     Ok(Token {
@@ -154,10 +154,7 @@ impl Lexer {
             },
             '\"' => {
                 self.next_char();
-                let start_pos = match self.cur_pos {
-                    0 => 0,
-                    _ => self.cur_pos - 1,
-                };
+                let start_pos = self.cur_pos;
 
                 while self.curr_char != '\"' {
                     let val = match self.curr_char {
@@ -176,12 +173,10 @@ impl Lexer {
                         '%' => Err(LexerError {
                             msg: String::from("invalid percentage character"),
                         }),
-                        _ => {
-                            self.next_char();
-                            Ok(self.curr_char)
-                        }
+                        _ => Ok(self.curr_char),
                     };
                     val.unwrap();
+                    self.next_char();
                 }
                 let tok_text = self.source.get_mut(start_pos..self.cur_pos - 1).unwrap();
                 Ok(Token {
@@ -217,10 +212,7 @@ impl Lexer {
                 })
             }
             c if c.is_ascii_alphabetic() => {
-                let start_pos = match self.cur_pos {
-                    0 => 0,
-                    _ => self.cur_pos - 1,
-                };
+                let start_pos = self.cur_pos;
                 while self.peek().is_ascii_alphabetic() {
                     self.next_char();
                 }
