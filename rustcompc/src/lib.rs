@@ -1,4 +1,4 @@
-// based on tiny lexer tutorial in python from  
+// based on tiny lexer tutorial in python from
 use std::fmt;
 
 // Define our error types. These may be customized for our error handling cases.
@@ -29,10 +29,10 @@ pub struct Lexer {
 }
 
 impl Lexer {
-    pub fn build_lexer(input: String) -> Lexer {
+    pub fn build_lexer(input: &String) -> Lexer {
         Lexer {
-            source: input + "\0",
-            curr_char: '\0',
+            source: input.to_owned() + &String::from("\0").to_owned(),
+            curr_char: input.chars().nth(0).unwrap(),
             cur_pos: 0,
         }
     }
@@ -52,9 +52,8 @@ impl Lexer {
             return '\0';
         }
 
-        let byte = self.source.as_bytes()[self.cur_pos + 1];
-        self.curr_char = byte as char;
-        return self.curr_char;
+        let byte = self.source.as_bytes()[self.cur_pos + 1] as char;
+        return byte;
     }
 
     pub fn skip_whitespace(&mut self) {
@@ -72,7 +71,6 @@ impl Lexer {
     }
 
     pub fn get_token(&mut self) -> Token {
-        self.next_char();
         self.skip_comments();
         self.skip_whitespace();
         let token: Result<Token> = match self.curr_char {
@@ -113,32 +111,35 @@ impl Lexer {
                     kind: TokenType::EQ,
                 }),
             },
-            '>' => match self.peek() {
-                '=' => {
+            '>' => {
+                if self.peek() == '=' {
                     self.next_char();
                     Ok(Token {
-                        text: self.curr_char.to_string(),
+                        text: String::from(">="),
                         kind: TokenType::GTEQ,
                     })
-                }
-                _ => Ok(Token {
-                    text: self.curr_char.to_string(),
-                    kind: TokenType::GT,
-                }),
-            },
-            '<' => match self.peek() {
-                '=' => {
-                    self.next_char();
+                } else {
                     Ok(Token {
-                        text: self.curr_char.to_string(),
-                        kind: TokenType::LTEQ,
+                        text: String::from(">"),
+                        kind: TokenType::GT,
                     })
                 }
-                _ => Ok(Token {
-                    text: self.curr_char.to_string(),
-                    kind: TokenType::LT,
-                }),
-            },
+            }
+            '<' => {
+                println!("{} {}", self.cur_pos, self.curr_char);
+                if self.peek() == '=' {
+                    self.next_char();
+                    Ok(Token {
+                        text: String::from("<="),
+                        kind: TokenType::LTEQ,
+                    })
+                } else {
+                    Ok(Token {
+                        text: String::from("<"),
+                        kind: TokenType::LT,
+                    })
+                }
+            }
             '!' => match self.peek() {
                 '=' => {
                     self.next_char();
@@ -154,8 +155,8 @@ impl Lexer {
             '\"' => {
                 self.next_char();
                 let start_pos = match self.cur_pos {
-                    0 => { 0 },
-                    _ => { self.cur_pos - 1 } 
+                    0 => 0,
+                    _ => self.cur_pos - 1,
                 };
 
                 while self.curr_char != '\"' {
@@ -182,20 +183,16 @@ impl Lexer {
                     };
                     val.unwrap();
                 }
-                let tok_text = self.source.get_mut(start_pos..self.cur_pos-1).unwrap();
+                let tok_text = self.source.get_mut(start_pos..self.cur_pos - 1).unwrap();
                 Ok(Token {
                     text: String::from(tok_text),
                     kind: TokenType::STRING,
                 })
-            },
+            }
             c if c.is_ascii_digit() => {
                 let start_pos = match self.cur_pos {
-                    0 => {
-                        0
-                    },
-                    _ => {
-                        self.cur_pos - 1
-                    }
+                    0 => 0,
+                    _ => self.cur_pos - 1,
                 };
                 while self.peek().is_ascii_digit() {
                     self.next_char();
@@ -203,8 +200,8 @@ impl Lexer {
                 if self.peek() == '.' {
                     self.next_char();
                     if !self.peek().is_ascii_digit() {
-                        let val = Err(LexerError { 
-                            msg: format!("Illegal char in number")  
+                        let val = Err(LexerError {
+                            msg: format!("Illegal char in number"),
                         });
                         val.unwrap()
                     }
@@ -216,32 +213,28 @@ impl Lexer {
                 self.next_char();
                 Ok(Token {
                     text: number_text.to_string(),
-                    kind: TokenType::NUMBER
+                    kind: TokenType::NUMBER,
                 })
-            },
+            }
             c if c.is_ascii_alphabetic() => {
                 let start_pos = match self.cur_pos {
-                    0 => {
-                        0
-                    },
-                    _ => {
-                        self.cur_pos - 1
-                    }
+                    0 => 0,
+                    _ => self.cur_pos - 1,
                 };
                 while self.peek().is_ascii_alphabetic() {
                     self.next_char();
-                };
-                let token_text = &self.source[start_pos..self.cur_pos+1].to_string();
+                }
+                let token_text = &self.source[start_pos..self.cur_pos + 1].to_string();
                 let is_keyword = TokenType::get_keyword_type(token_text.clone());
                 if is_keyword != TokenType::UNKNOWN {
                     self.next_char();
                     Ok(Token {
                         text: token_text.clone(),
-                        kind: is_keyword
+                        kind: is_keyword,
                     })
                 } else {
-                    Err(LexerError { 
-                        msg: format!("unknown keyword encountered {}", token_text.to_string()) 
+                    Err(LexerError {
+                        msg: format!("unknown keyword encountered {}", token_text.to_string()),
                     })
                 }
             }
@@ -249,6 +242,7 @@ impl Lexer {
                 msg: format!("unknown token: {:x}", unknown as u32),
             }),
         };
+        self.next_char();
         token.unwrap()
     }
 }
@@ -283,6 +277,7 @@ pub enum TokenType {
     WHILE = 109,
     REPEAT = 110,
     ENDWHILE = 111,
+    ELSE = 112,
     // Operators.
     EQ = 201,
     PLUS = 202,
@@ -297,7 +292,7 @@ pub enum TokenType {
     GTEQ = 211,
 
     // unknown
-    UNKNOWN = 999
+    UNKNOWN = 999,
 }
 
 impl TokenType {
@@ -313,8 +308,9 @@ impl TokenType {
             c if c == String::from("REPEAT") => TokenType::REPEAT,
             c if c == String::from("ENDWHILE") => TokenType::ENDWHILE,
             c if c == String::from("LET") => TokenType::LET,
+            c if c == String::from("ELSE") => TokenType::ELSE,
             c if c.contains(char::is_whitespace) => TokenType::INDENT,
-            _ => TokenType::UNKNOWN
+            _ => TokenType::UNKNOWN,
         }
     }
 }
@@ -338,6 +334,7 @@ impl fmt::Display for TokenType {
             TokenType::WHILE => write!(f, "WHILE"),
             TokenType::REPEAT => write!(f, "REPEAT"),
             TokenType::ENDWHILE => write!(f, "ENDWHILE"),
+            TokenType::ELSE => write!(f, "ELSE"),
             TokenType::EQ => write!(f, "EQ"),
             TokenType::PLUS => write!(f, "PLUS"),
             TokenType::MINUS => write!(f, "MINUS"),
@@ -349,7 +346,7 @@ impl fmt::Display for TokenType {
             TokenType::LTEQ => write!(f, "LTEQ"),
             TokenType::GT => write!(f, "GT"),
             TokenType::GTEQ => write!(f, "GTEQ"),
-            TokenType::UNKNOWN => write!(f, "UNKNOWN")
+            TokenType::UNKNOWN => write!(f, "UNKNOWN"),
         }
     }
 }

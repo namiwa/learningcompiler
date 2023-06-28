@@ -4,7 +4,7 @@ mod tests {
     use rustcompc::TokenType;
 
     fn lexer_tester(test_statement: String, valid_tokens: Vec<TokenType>, print_tokens: bool) {
-        let mut lexer = Lexer::build_lexer(test_statement);
+        let mut lexer = Lexer::build_lexer(&test_statement);
         let mut index = 0;
 
         // lexer tokens are read from back to front
@@ -28,7 +28,7 @@ mod tests {
     #[test]
     fn it_parses_strings() {
         let test_statement = String::from("\"testing str\"");
-        let valid_tokens = vec![TokenType::STRING, TokenType::EOF];
+        let valid_tokens = vec![TokenType::STRING];
         lexer_tester(test_statement, valid_tokens, false)
     }
 
@@ -48,28 +48,42 @@ mod tests {
     }
 
     #[test]
-    fn it_parses_operators() {
-        let test_statement = String::from("+- */ >>= = ");
+    fn it_parses_basic_operators() {
+        let test_statement = String::from("+- */ > <");
         let valid_tokens = vec![
             TokenType::PLUS,
             TokenType::MINUS,
             TokenType::ASTERISK,
             TokenType::SLASH,
             TokenType::GT,
-            TokenType::GTEQ,
+            TokenType::LT,
             TokenType::EOF,
         ];
         lexer_tester(test_statement, valid_tokens, true)
     }
 
     #[test]
+    fn it_parses_complex_operators() {
+        let test_statement = String::from("<= >= != ==");
+        let valid_tokens = vec![
+            TokenType::LTEQ,
+            TokenType::GTEQ,
+            TokenType::NOTEQ,
+            TokenType::EQEQ,
+            TokenType::EOF,
+        ];
+        lexer_tester(test_statement, valid_tokens, false)
+    }
+
+    #[test]
     fn it_parses_keywords() {
-        let test_statement = String::from("LET IF THEN");
+        let test_statement = String::from("LET IF THEN ELSE");
         let valid_tokens = vec![
             TokenType::LET,
             TokenType::IF,
             TokenType::THEN,
+            TokenType::ELSE,
         ];
-        lexer_tester(test_statement, valid_tokens, true)
+        lexer_tester(test_statement, valid_tokens, false)
     }
 }
