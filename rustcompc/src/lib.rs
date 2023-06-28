@@ -219,7 +219,6 @@ impl Lexer {
                 let token_text = &self.source[start_pos..self.cur_pos + 1].to_string();
                 let is_keyword = TokenType::get_keyword_type(token_text.clone());
                 if is_keyword != TokenType::UNKNOWN {
-                    self.next_char();
                     Ok(Token {
                         text: token_text.clone(),
                         kind: is_keyword,
@@ -255,7 +254,7 @@ pub enum TokenType {
     EOF = -1,
     NEWLINE = 0,
     NUMBER = 1,
-    INDENT = 2,
+    IDENT = 2,
     STRING = 3,
     // Keywords.
     LABEL = 101,
@@ -301,7 +300,7 @@ impl TokenType {
             c if c == String::from("ENDWHILE") => TokenType::ENDWHILE,
             c if c == String::from("LET") => TokenType::LET,
             c if c == String::from("ELSE") => TokenType::ELSE,
-            c if c.contains(char::is_whitespace) => TokenType::INDENT,
+            c if c.contains(char::is_alphanumeric) => TokenType::IDENT,
             _ => TokenType::UNKNOWN,
         }
     }
@@ -313,7 +312,7 @@ impl fmt::Display for TokenType {
             TokenType::EOF => write!(f, "EOF"),
             TokenType::NEWLINE => write!(f, "NEWLINE"),
             TokenType::NUMBER => write!(f, "NUMBER"),
-            TokenType::INDENT => write!(f, "INDENT"),
+            TokenType::IDENT => write!(f, "IDENT"),
             TokenType::STRING => write!(f, "STRING"),
             TokenType::LABEL => write!(f, "LABEL"),
             TokenType::GOTO => write!(f, "GOTO"),

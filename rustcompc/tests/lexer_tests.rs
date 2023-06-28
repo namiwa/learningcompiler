@@ -84,6 +84,23 @@ mod tests {
             TokenType::THEN,
             TokenType::ELSE,
         ];
-        lexer_tester(test_statement, valid_tokens, true)
+        lexer_tester(test_statement, valid_tokens, false)
+    }
+
+    #[test]
+    fn end_lexer_test() {
+        let test_statement = String::from("IF+-123 foo*THEN/");
+        let valid_tokens = vec![
+            TokenType::IF,
+            TokenType::PLUS,
+            TokenType::MINUS,
+            TokenType::NUMBER,
+            TokenType::IDENT,
+            TokenType::ASTERISK,
+            TokenType::THEN,
+            TokenType::SLASH,
+            TokenType::EOF,
+        ];
+        lexer_tester(test_statement, valid_tokens, false)
     }
 }
