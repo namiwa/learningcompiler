@@ -1,13 +1,11 @@
 #[cfg(test)]
 mod tests {
-    use rustcompc::Lexer;
-    use rustcompc::TokenType;
+    use rustcompc::lexer::*;
 
     fn lexer_tester(test_statement: String, valid_tokens: Vec<TokenType>, print_tokens: bool) {
         let mut lexer = Lexer::build_lexer(&test_statement);
         let mut index = 0;
 
-        // lexer tokens are read from back to front
         while index < valid_tokens.len() {
             let token = lexer.get_token();
             if print_tokens {
@@ -43,7 +41,7 @@ mod tests {
         lexer_tester(test_statement, valid_tokens, false);
 
         let test_statement = String::from("445 1122");
-        let valid_tokens = vec![TokenType::NUMBER, TokenType::NUMBER, TokenType::EOF];
+        let valid_tokens = vec![TokenType::NUMBER, TokenType::NUMBER];
         lexer_tester(test_statement, valid_tokens, false);
     }
 
@@ -70,7 +68,6 @@ mod tests {
             TokenType::GTEQ,
             TokenType::NOTEQ,
             TokenType::EQEQ,
-            TokenType::EOF,
         ];
         lexer_tester(test_statement, valid_tokens, false)
     }
@@ -99,8 +96,7 @@ mod tests {
             TokenType::ASTERISK,
             TokenType::THEN,
             TokenType::SLASH,
-            TokenType::EOF,
         ];
-        lexer_tester(test_statement, valid_tokens, false)
+        lexer_tester(test_statement, valid_tokens, true)
     }
 }

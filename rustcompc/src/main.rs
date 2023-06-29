@@ -1,4 +1,4 @@
-use rustcompc::Lexer;
+use rustcompc::lexer::Lexer;
 
 fn main() {
     println!("Hello, testing mini lexer in rust!");
