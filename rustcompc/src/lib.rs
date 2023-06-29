@@ -31,7 +31,7 @@ pub struct Lexer {
 impl Lexer {
     pub fn build_lexer(input: &String) -> Lexer {
         Lexer {
-            source: input.to_owned() + &String::from("\0").to_owned(),
+            source: input.to_owned() + &String::from("\n").to_owned(),
             curr_char: input.chars().nth(0).unwrap(),
             cur_pos: 0,
         }
