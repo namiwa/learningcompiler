@@ -16,6 +16,7 @@ return 1;
 #endif
 #else
 std::cout << "Un-supported platform!" << std::endl;
+return 1;
 #endif
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
