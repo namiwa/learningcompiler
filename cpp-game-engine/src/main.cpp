@@ -1,3 +1,4 @@
+#include "shaders/shaders.hpp"
 #include <iostream>
 
 #if defined(__linux__)
@@ -146,6 +147,7 @@ int main(void)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
 
+    Shader ourShader("./assets/shaders/vertex/triangle.vs", "./assets/shaders/fragment/triangle.fs");
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
@@ -155,6 +157,10 @@ int main(void)
 
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
+
+        ourShader.use();
+        ourShader.setFloat("someUniform", 1.0f);
+
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
 
@@ -164,6 +170,9 @@ int main(void)
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+
+
+
     glfwTerminate();
     return 0;
 }
@@ -179,3 +188,5 @@ reference --> safe operation meaning that it points to some data
 ie it can never point to nothing / nullptr
 by default, everything is pass by value
 */
+
+
