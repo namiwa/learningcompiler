@@ -3,13 +3,11 @@
  */
 package com.gradle.java.compiler;
 
-public class App {
-    public String getGreeting() {
-        String toy = "a toy".toUpperCase();
-        return toy; 
-    }
+import java.io.IOException;
 
-    public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
-    }
+public class App {
+  public static void main(String[] args) throws IOException {
+    System.out.println("Starting Lox Repl");      
+    Lox.main(args);
+  }
 }
