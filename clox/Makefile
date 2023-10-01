@@ -1,18 +1,23 @@
 CC = gcc
-CFLAGS = -g
+CFLAGS = -g -DDEBUG_TRACE_EXECUTION
+
+.PHONY: clean clean_run
 
 SRCS := $(shell find . -name '*.c')
 
 SRC := $(SRCS:.c=.o)
 
 $(SRC): $(SRCS)
-	$(CC) -c $(SRCS)
+	$(CC) $(CFLAGS) -c $(SRCS)
 
 clox: $(SRC)
-	$(CC) $(SRC) -o clox
+	$(CC) $(CFLAGS) $(SRC) -o clox
 
-.PHONY: clean
+run: clox
+	./clox
+
+clean_run: | clean clox run
+
 clean:
-	rm -rf *.o
-	rm -rf clox 
+	rm -rf *.o clox
 
