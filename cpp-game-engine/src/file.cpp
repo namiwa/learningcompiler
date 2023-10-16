@@ -55,4 +55,3 @@ bool File::writeStrToFile(std::string p, std::string contents, bool overwrite) {
   return true;
 }
 
-

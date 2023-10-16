@@ -1,25 +1,7 @@
-#include "shaders/shaders.hpp"
 #include <cstdio>
 #include <iostream>
 
-#if defined(__linux__)
-#include <GLES/gl.h>
-#include <GLFW/glfw3.h>
-#include <glad/glad.h>
-#elif defined(__APPLE__) && defined(__MACH__)
-#include <TargetConditionals.h>
-#if TARGET_OS_MAC == 1
-#include <OpenGL/OpenGL.h>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#else
-std::cout << "Not supported non mac-os platform" << std::endl;
-return 1;
-#endif
-#else
-std::cout << "Un-supported platform!" << std::endl;
-return 1;
-#endif
+#include "common/common.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
