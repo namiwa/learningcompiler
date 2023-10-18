@@ -1,4 +1,5 @@
 #include "window/window.hpp"
+#include "GLFW/glfw3.h"
 
 void Window::processExit(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -15,6 +16,7 @@ void Window::framebufferSizeHandle(GLFWwindow *window, int width, int height) {
 }
 
 Window::Window::Window(int height, int width, const char *title) {
+  _window = nullptr;
   _title = title;
   _height = height;
   _width = width;
@@ -22,13 +24,13 @@ Window::Window::Window(int height, int width, const char *title) {
 
 Window::Window::~Window() { glfwDestroyWindow(_window); }
 
-void Window::Window::Window::terminate() {
+void Window::Window::terminate() {
   glfwDestroyWindow(_window);
   glfwTerminate();
 }
 
-void Window::Window::displayWindow(void (*fp)()) {
-
+void Window::Window::displayWindow(std::function<void()> fp) {
+  std::cout << "Window init..." << std::endl;
   /* set error callback */
   glfwSetErrorCallback(windowErrorHandle);
 
@@ -36,30 +38,36 @@ void Window::Window::displayWindow(void (*fp)()) {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-  _window = glfwCreateWindow(_height, _width, _title, nullptr, nullptr);
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+  glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+  
+  std::cout << "Window creation..." << std::endl;
+
+  _window = glfwCreateWindow(_width, _height, _title, NULL, NULL);
   if (!_window) {
-    std::cerr << "Failed to init GLFW window" << std::endl;
-    glfwTerminate();
+    std::cerr << "Window creation failed" << std::endl;
     return;
   }
+
   glfwMakeContextCurrent(_window);
-  glViewport(0, 0, _height, _width);
-
-  int version = gladLoadGLLoader((GLADloadproc) glfwGetProcAddress); 
-  if (version == 1) {
-    printf("Failed to initialize OpenGL context\n");
-    glfwTerminate();
+  int status = gladLoadGL();
+  if (!status) {
+    std::cerr << "Failed to get init GLAD to OpenGL" << std::endl;
     return;
   }
 
-  glfwSetFramebufferSizeCallback(_window, framebufferSizeHandle);
+  glViewport(0, 0, _width, _height);
+  glfwSwapInterval(1);
 
   while (!glfwWindowShouldClose(_window)) {
+    // call the game state render function below
+    glfwGetFramebufferSize(_window, &_width, &_height);
+    fp();
+
     processExit(_window);
     glfwSwapBuffers(_window);
-    fp();
     glfwPollEvents();
   }
+
   return;
 }

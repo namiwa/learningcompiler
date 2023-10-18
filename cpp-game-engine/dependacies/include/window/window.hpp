@@ -2,6 +2,7 @@
 #define window_hpp
 
 #include <iostream>
+#include <functional>
 
 #include "common/common.h"
 
@@ -19,7 +20,7 @@ namespace Window {
     public:
       Window(int height, int width, const char *title);
       ~Window();
-      void displayWindow(void (*fp)(void));
+      void displayWindow(std::function<void()> fp);
       void terminate();
   };
 };

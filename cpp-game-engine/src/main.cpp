@@ -1,7 +1,10 @@
+#include "common/common.h"
 #include "window/window.hpp"
 
 // dummy void function pointer for testing
-void fp() {}
+void fp() {
+  std::cout << "render game state" << std::endl;
+}
 
 /**
  * Main entry point for game hehe.
@@ -12,11 +15,8 @@ int main(void) {
   if (!glfwInt) {
     std::cerr << "Failed to init GLFW" << std::endl;
   }
-  auto mainWindow = Window::Window(800, 600, "namiwa main window!");
-  mainWindow.displayWindow(&fp);
-  mainWindow.terminate();
-  mainWindow.~Window();
+  Window::Window *mainWindow = new Window::Window(800, 600, "namiwa main window!");
   // TODO: store in clean up func later.
-  glfwTerminate();
+  mainWindow->displayWindow(&fp);
   return 0;
 }
