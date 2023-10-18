@@ -18,6 +18,15 @@ Get the required osx developer tool chain from xcode
 ### Ubuntu (WSL)
 install the `freeglut3-dev` package, basically the basics for OpenGl, Glad & GLFW support!
 
+
+## Debugging
+
+with the compiled game, there's valgrind to measure memory usage and leaks, and running
+the following gdb to step through the program binary
+```bash
+sudo gdb ./game_app
+```
+
 ## References
 
 https://learnopengl.com/Getting-started/Hello-Triangle
