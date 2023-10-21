@@ -16,7 +16,7 @@ fi
 
 # build game  
 echo "Compling Game"
-clang++ -v --std=c++17 -fdiagnostics-color=always -Wall -ggdb -I./dependacies/include -L./dependacies/library ./src/*.c ./src/*.cpp ./dependacies/library/libglfw.3.3.dylib -o game_app -framework OpenGl -framework Cocoa -framework IOKit -framework CoreVideo -framework CoreFoundation -Wno-deprecated
+clang++ -v --std=c++17 -fdiagnostics-color=always -Wall -ggdb -I./dependacies/include -L./dependacies/library ./src/*.c ./src/*.cpp -lstdc++fs ./dependacies/library/libglfw.3.3.dylib -o game_app -framework OpenGl -framework Cocoa -framework IOKit -framework CoreVideo -framework CoreFoundation -Wno-deprecated
 
 run_game ()
 {

@@ -3,3 +3,4 @@
 -lglad
 -L./dependacies/library
 ./dependacies/library/libglfw.3.3.dylib
+-lstdc++fs

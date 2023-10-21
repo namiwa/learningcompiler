@@ -18,5 +18,8 @@ int main(void) {
   Window::Window *mainWindow = new Window::Window(800, 600, "namiwa main window!");
   // TODO: store in clean up func later.
   mainWindow->displayWindow(&fp);
+  delete mainWindow;
+  mainWindow = nullptr;
+  glfwTerminate();
   return 0;
 }

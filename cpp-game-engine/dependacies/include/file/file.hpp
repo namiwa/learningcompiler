@@ -2,10 +2,10 @@
 #define file_utils_hpp
 
 #include <string>
-#include <filesystem>
+#include <experimental/filesystem>
 
 namespace File {
-  std::__fs::filesystem::path cleanPath(std::string path);
+  std::experimental::filesystem::path cleanPath(std::string path);
   bool pathExists(std::string path);
   bool pathIsDir(std::string path);
   std::string getFileAsString(std::string path);
