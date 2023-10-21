@@ -60,6 +60,8 @@ void Window::Window::displayWindow(std::function<void()> fp) {
   glfwSwapInterval(1);
 
   while (!glfwWindowShouldClose(_window)) {
+    // clean drawing surface for color and depth
+    glad_glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // call the game state render function below
     glfwGetFramebufferSize(_window, &_width, &_height);
     fp();
