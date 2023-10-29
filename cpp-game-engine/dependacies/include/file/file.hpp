@@ -2,10 +2,11 @@
 #define file_utils_hpp
 
 #include <string>
-#include <experimental/filesystem>
+// TODO: bug in filesystem import for experimental vs native
+#include "filesystem/filesystem.hpp"
 
 namespace File {
-  std::experimental::filesystem::path cleanPath(std::string path);
+  ghc::filesystem::path cleanPath(std::string path);
   bool pathExists(std::string path);
   bool pathIsDir(std::string path);
   std::string getFileAsString(std::string path);

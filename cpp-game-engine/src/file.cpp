@@ -5,9 +5,8 @@
 #include <streambuf>
 #include <string>
 #include <vector>
-#include <experimental/filesystem>
 
-using namespace std::experimental;
+using namespace ghc;
 
 filesystem::path File::cleanPath(std::string p) {
   return filesystem::path(p);
