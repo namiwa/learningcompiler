@@ -7,15 +7,17 @@
 #include <common/common.h>
 
 namespace Shaders {
-  const char* getCharsFromFile(std::string path);
-  void processShaderChar(const char* contents);
+  void setCharsFromFile(std::string path, const char* contents);
   class Shader {
     public:
       Shader(std::string vertexRoot, std::string fragmentRoot);
-      void use(int id);
-      std::vector<unsigned int> getIds();
+      ~Shader();
+      void use();
+      void compile();
+      int getId();
     private:
-      std::vector<unsigned int> ids;
+      const char* vertexContent;
+      const char* fragmentContent;
   };
 };
 

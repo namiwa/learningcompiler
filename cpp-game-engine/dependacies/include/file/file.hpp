@@ -2,7 +2,6 @@
 #define file_utils_hpp
 
 #include <string>
-// TODO: bug in filesystem import for experimental vs native
 #include "filesystem/filesystem.hpp"
 
 namespace File {
