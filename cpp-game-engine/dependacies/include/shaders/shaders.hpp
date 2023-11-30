@@ -7,17 +7,21 @@
 #include <common/common.h>
 
 namespace Shaders {
-  void setCharsFromFile(std::string path, const char* contents);
+  std::string setCharsFromFile(std::string& path, const char* contents);
   class Shader {
     public:
       Shader(std::string vertexRoot, std::string fragmentRoot);
       ~Shader();
       void use();
-      void compile();
-      int getId();
+      GLint* getId();
+      void setBool(const std::string &name, bool value) const;
+      void setInt(const std::string &name, int value) const;
+      void setFloat(const std::string &name, float value) const;
     private:
+      void compile();
       const char* vertexContent;
       const char* fragmentContent;
+      GLint* shaderId;
   };
 };
 

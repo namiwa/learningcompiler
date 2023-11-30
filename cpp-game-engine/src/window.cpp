@@ -1,5 +1,6 @@
 #include "window/window.hpp"
 #include "GLFW/glfw3.h"
+#include "shaders/shaders.hpp"
 
 void Window::processExit(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -28,7 +29,7 @@ void Window::Window::terminate() {
   glfwDestroyWindow(_window);
 }
 
-void Window::Window::displayWindow(std::function<void()> fp) {
+void Window::Window::displayWindow(std::function<void(Shaders::Shader&)> fp, Shaders::Shader& shader) {
   std::cout << "Window init..." << std::endl;
   /* set error callback */
   glfwSetErrorCallback(windowErrorHandle);
@@ -60,12 +61,12 @@ void Window::Window::displayWindow(std::function<void()> fp) {
 
   while (!glfwWindowShouldClose(_window)) {
     // clean drawing surface for color and depth
-    glad_glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glfwGetFramebufferSize(_window, &_width, &_height);
     processExit(_window);
 
     // call the game state render function below
-    fp();
+    fp(shader);
 
     glfwSwapBuffers(_window);
     glfwPollEvents();

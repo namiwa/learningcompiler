@@ -1,4 +1,5 @@
 #include "file/file.hpp"
+#include "filesystem/filesystem.hpp"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -9,7 +10,8 @@
 using namespace ghc;
 
 filesystem::path File::cleanPath(std::string p) {
-  return filesystem::path(p);
+  filesystem::path cp = filesystem::path(p);
+  return filesystem::canonical(cp);
 }
 
 bool File::pathIsDir(std::string p) {
@@ -19,7 +21,11 @@ bool File::pathIsDir(std::string p) {
 
 bool File::pathExists(std:: string p) {
   filesystem::path cp = cleanPath(p);
-  return filesystem::exists(cp);
+  bool ans = filesystem::exists(cp);
+  if (!ans) {
+    std::cout << "file does not exists: " << cp.string() << std::endl;
+  }
+  return ans;
 }
 
 std::string File::getFileAsString(std::string p) {
@@ -29,7 +35,7 @@ std::string File::getFileAsString(std::string p) {
   std::vector<std::string> lines;
   std::ifstream input_file(cp.c_str());
   if (!input_file.is_open()) {
-    std::cerr << "Could not open file - " << cp << std::endl;
+    std::cout << "Could not open file - " << cp << std::endl;
     return line;
   }
   while (std::getline(input_file, line)) {
@@ -37,7 +43,7 @@ std::string File::getFileAsString(std::string p) {
   }
   input_file.close();
   std::string content;
-  for (const auto &li : lines) content += li;
+  for (const auto &li : lines) content += li + "\n";
   return content;
 }
 

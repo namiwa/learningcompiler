@@ -5,6 +5,7 @@
 #include <functional>
 
 #include "common/common.h"
+#include "shaders/shaders.hpp"
 
 namespace Window {
   void processExit(GLFWwindow *window);
@@ -20,7 +21,7 @@ namespace Window {
     public:
       Window(int height, int width, const char *title);
       ~Window();
-      void displayWindow(std::function<void()> fp);
+      void displayWindow(std::function<void(Shaders::Shader&)> fp, Shaders::Shader& shader);
       void terminate();
   };
 };
