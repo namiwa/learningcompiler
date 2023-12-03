@@ -3,15 +3,25 @@
 #include "shaders/shaders.hpp"
 
 
-void fp() {
+void fp(Shaders::Shader& shader) {
   std::cout << "render game state" << std::endl;
+
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR) {
+      std::cerr << "OpenGL Error: " << error << std::endl;
+  }
+
+  char infoLog[512];
+  glGetProgramInfoLog(shader.getId(), 512, NULL, infoLog);
+  std::cout << "shader error: " << infoLog << std::endl;
+  std::cout << "vertexArray size: " << shader.vertexSize << std::endl;
 }
 
 // dummy void function pointer for testing
 void shaderWrapper(Shaders::Shader& shader) {
   std::cout << "running shaders" << std::endl;
   shader.use();
-  shader.setFloat("someUniform", 1.0f);
+  fp(shader);
 }
 
 /**
@@ -24,12 +34,15 @@ int main(void) {
     std::cerr << "Failed to init GLFW" << std::endl;
   }
 
-  // figure out how to handle this hardcoded paths
-  Shaders::Shader ourShader("./src/assets/shaders/vertex/triangle.vs", "./src/assets/shaders/fragment/triangle.fs");
-
   Window::Window *mainWindow = new Window::Window(800, 600, "namiwa main window!");
+  float vertices[] = {
+    -0.5f, -0.5f, 0.0f,
+     0.5f, -0.5f, 0.0f,
+     0.0f,  0.5f, 0.0f
+  }; 
+  Shaders::Shader ourShader("./src/assets/shaders/vertex/triangle.vs", "./src/assets/shaders/fragment/triangle.fs", vertices, 9);
   // TODO: store in clean up func later.
-  // mainWindow->displayWindow(&shaderWrapper, ourShader);
+  mainWindow->displayWindow(&shaderWrapper, ourShader);
   delete mainWindow;
   mainWindow = nullptr;
   glfwTerminate();

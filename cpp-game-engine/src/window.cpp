@@ -1,5 +1,4 @@
 #include "window/window.hpp"
-#include "GLFW/glfw3.h"
 #include "shaders/shaders.hpp"
 
 void Window::processExit(GLFWwindow *window) {
@@ -21,15 +20,7 @@ Window::Window::Window(int height, int width, const char *title) {
   _title = title;
   _height = height;
   _width = width;
-}
 
-Window::Window::~Window() { glfwDestroyWindow(_window); }
-
-void Window::Window::terminate() {
-  glfwDestroyWindow(_window);
-}
-
-void Window::Window::displayWindow(std::function<void(Shaders::Shader&)> fp, Shaders::Shader& shader) {
   std::cout << "Window init..." << std::endl;
   /* set error callback */
   glfwSetErrorCallback(windowErrorHandle);
@@ -58,7 +49,15 @@ void Window::Window::displayWindow(std::function<void(Shaders::Shader&)> fp, Sha
 
   glViewport(0, 0, _width, _height);
   glfwSwapInterval(1);
+}
 
+Window::Window::~Window() { glfwDestroyWindow(_window); }
+
+void Window::Window::terminate() {
+  glfwDestroyWindow(_window);
+}
+
+void Window::Window::displayWindow(std::function<void(Shaders::Shader&)> fp, Shaders::Shader& shader) {
   while (!glfwWindowShouldClose(_window)) {
     // clean drawing surface for color and depth
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -71,6 +70,5 @@ void Window::Window::displayWindow(std::function<void(Shaders::Shader&)> fp, Sha
     glfwSwapBuffers(_window);
     glfwPollEvents();
   }
-
   return;
 }
