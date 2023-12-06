@@ -1,3 +1,4 @@
+#include <map>
 #include "window/window.hpp"
 #include "shaders/shaders.hpp"
 
@@ -23,7 +24,6 @@ Window::Window::Window(int height, int width, const char *title) {
 
   std::cout << "Window init..." << std::endl;
   /* set error callback */
-  glfwSetErrorCallback(windowErrorHandle);
 
   /* create windowed mode window and its OpenGL context*/
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -60,7 +60,7 @@ void Window::Window::terminate() {
 void Window::Window::displayWindow(std::function<void(Shaders::Shader&)> fp, Shaders::Shader& shader) {
   while (!glfwWindowShouldClose(_window)) {
     // clean drawing surface for color and depth
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glfwGetFramebufferSize(_window, &_width, &_height);
     processExit(_window);
 

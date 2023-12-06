@@ -8,7 +8,7 @@
 #include <common/common.h>
 
 namespace Shaders {
-  std::string setCharsFromFile(std::string& path, const char* contents);
+  std::string setCharsFromFile(std::string& path);
 
   class Shader {
     public:
@@ -21,14 +21,15 @@ namespace Shaders {
       void setBool(const std::string &name, bool value) const;
       void setInt(const std::string &name, int value) const;
       void setFloat(const std::string &name, float value) const;
-      unsigned int vertexSize;
+      void printInfo();
     private:
       void compile();
-      const char* vertexContent;
-      const char* fragmentContent;
+      std::string vertexContent;
+      std::string fragmentContent;
       unsigned int shaderId;
-      unsigned int vaoId;
       float* vertices;
+      unsigned int vertexSize;
+      unsigned int vaoId;
   };
 };
 

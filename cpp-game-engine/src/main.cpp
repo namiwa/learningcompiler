@@ -1,20 +1,24 @@
 #include "common/common.h"
 #include "window/window.hpp"
 #include "shaders/shaders.hpp"
+#include <cstring>
 
 
-void fp(Shaders::Shader& shader) {
-  std::cout << "render game state" << std::endl;
-
+void printGlError() {
   GLenum error = glGetError();
   if (error != GL_NO_ERROR) {
       std::cerr << "OpenGL Error: " << error << std::endl;
   }
+}
 
+void fp(Shaders::Shader& shader) {
+  std::cout << "render game state" << std::endl;
+  printGlError();
   char infoLog[512];
   glGetProgramInfoLog(shader.getId(), 512, NULL, infoLog);
-  std::cout << "shader error: " << infoLog << std::endl;
-  std::cout << "vertexArray size: " << shader.vertexSize << std::endl;
+  if (std::strcmp(infoLog, "")) {
+    std::cout << "shader error: " << infoLog << std::endl;
+  }
 }
 
 // dummy void function pointer for testing
@@ -41,6 +45,7 @@ int main(void) {
      0.0f,  0.5f, 0.0f
   }; 
   Shaders::Shader ourShader("./src/assets/shaders/vertex/triangle.vs", "./src/assets/shaders/fragment/triangle.fs", vertices, 9);
+  printGlError();
   // TODO: store in clean up func later.
   mainWindow->displayWindow(&shaderWrapper, ourShader);
   delete mainWindow;

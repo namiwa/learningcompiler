@@ -8,7 +8,7 @@
 
 using namespace ghc;
 
-std::string Shaders::setCharsFromFile(std::string& path, const char* contents) {
+std::string Shaders::setCharsFromFile(std::string& path) {
   filesystem::path filepath = File::cleanPath(path);
   if (!File::pathExists(filepath)) return "";
   if (File::pathIsDir(filepath)) return "";
@@ -16,13 +16,17 @@ std::string Shaders::setCharsFromFile(std::string& path, const char* contents) {
 }
 
 Shaders::Shader::Shader(std::string vertexRoot, std::string fragmentRoot, float verticesData[], unsigned int vertexLen) {
-  std::string vcontent = setCharsFromFile(vertexRoot, vertexContent);
-  std::string fcontent = setCharsFromFile(fragmentRoot, fragmentContent);
-  vertexContent = vcontent.c_str();
-  fragmentContent = fcontent.c_str();
+  vertexContent = setCharsFromFile(vertexRoot);
+  fragmentContent = setCharsFromFile(fragmentRoot);
   vertexSize = vertexLen;
   vertices = (float *) std::malloc(vertexLen * sizeof(float));
-  std::memcpy(vertices, verticesData, vertexLen);
+  for (int i = 0; i < vertexLen; i++) {
+    std::cout << "before\n";
+    std::cout << vertices[i] << std::endl;
+    vertices[i] = verticesData[i];
+    std::cout << "after\n";
+    std::cout << vertices[i] << std::endl;
+  }
   compile();
 }
 
@@ -30,6 +34,7 @@ Shaders::Shader::~Shader() {
   if (glIsProgram(shaderId)) {
     glDeleteProgram(shaderId);
   }
+  free(vertices);
 }
 
 void Shaders::Shader::compile() {
@@ -37,15 +42,26 @@ void Shaders::Shader::compile() {
   GLint vertex, fragment;
   int success;
   char infoLog[512];
-  // add vertices to vbo
+  glGenVertexArrays(1, &vaoId);
+  glBindVertexArray(vaoId);
+
+  // add vertices to VAO
   unsigned int VBO;
-  glGenBuffers(1, &VBO);
+  glGenBuffers(1, &VBO); 
+
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+  glBindBuffer(GL_ARRAY_BUFFER, vaoId);
   glBufferData(GL_ARRAY_BUFFER, vertexSize, vertices, GL_STATIC_DRAW);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, vertexSize, (void *) 0);
+  glEnableVertexAttribArray(0);
 
   // compile vertexShader
   vertex = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vertex, 1, &vertexContent, NULL);
+  std::cout << "compiling vertexContent: " << vertexContent << std::endl;
+  const char* vt = vertexContent.c_str();
+  glShaderSource(vertex, 1, &vt, NULL);
   glCompileShader(vertex);
 
   glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
@@ -56,7 +72,9 @@ void Shaders::Shader::compile() {
   std::cout << "vertex shader created " << vertex << "\n";
 
   fragment = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fragment, 1, &fragmentContent, NULL);
+  std::cout << "compiling fragmentContent: " << fragmentContent << std::endl;
+  const char* ft = fragmentContent.c_str();
+  glShaderSource(fragment, 1, &ft, NULL);
   glCompileShader(fragment);
 
   glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
@@ -70,7 +88,6 @@ void Shaders::Shader::compile() {
   glAttachShader(shaderId, vertex);
   glAttachShader(shaderId, fragment);
   glLinkProgram(shaderId);
-
   glGetProgramiv(shaderId, GL_LINK_STATUS, &success);
   if (!success) {
     glGetProgramInfoLog(shaderId, 512, NULL, infoLog);
@@ -78,15 +95,16 @@ void Shaders::Shader::compile() {
   }
   std::cout << "shader program created " << shaderId << "\n";
 
+  glValidateProgram(shaderId);
   glDeleteShader(vertex);
   glDeleteShader(fragment);
-  glValidateProgram(shaderId);
 }
 
 
 void Shaders::Shader::use() {
-
   glUseProgram(shaderId);
+  glBindVertexArray(vaoId);
+  glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 unsigned int Shaders::Shader::getId() {
@@ -104,4 +122,16 @@ void Shaders::Shader::setInt(const std::string &name, int value) const {
 
 void Shaders::Shader::setFloat(const std::string &name, float value) const {
   glUniform1i(glGetUniformLocation(shaderId, name.c_str()), value);
+}
+
+void Shaders::Shader::printInfo() {
+  std::cout << "shaderId: " << shaderId << "\n";
+  std::cout << "vertexContent:\n" << vertexContent << "\n";
+  std::cout << "fragmentContent:\n" << fragmentContent << "\n";
+  std::cout << "vertexSize: " << vertexSize << "\n";
+  for (int i = 0; i < vertexSize; i++) {
+    std::cout << vertices[i] << " ";
+  }
+  std::cout << std::endl;
+  std::cout << "vaoId: " << vaoId << "\n";
 }

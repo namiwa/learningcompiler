@@ -44,6 +44,7 @@ std::string File::getFileAsString(std::string p) {
   input_file.close();
   std::string content;
   for (const auto &li : lines) content += li + "\n";
+  std::cout << "content of " << cp << ": " << content << std::endl;
   return content;
 }
 
