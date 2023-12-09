@@ -48,7 +48,6 @@ Window::Window::Window(int height, int width, const char *title) {
   }
 
   glViewport(0, 0, _width, _height);
-  glfwSwapInterval(1);
 }
 
 Window::Window::~Window() { glfwDestroyWindow(_window); }
@@ -60,7 +59,8 @@ void Window::Window::terminate() {
 void Window::Window::displayWindow(std::function<void(Shaders::Shader&)> fp, Shaders::Shader& shader) {
   while (!glfwWindowShouldClose(_window)) {
     // clean drawing surface for color and depth
-    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(1.0f, 1.0f, 1.0f, 0.5f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glfwGetFramebufferSize(_window, &_width, &_height);
     processExit(_window);
 

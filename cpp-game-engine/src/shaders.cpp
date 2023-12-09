@@ -35,6 +35,8 @@ Shaders::Shader::~Shader() {
     glDeleteProgram(shaderId);
   }
   free(vertices);
+  glDeleteBuffers(1, &vboId);
+  glDeleteVertexArrays(1, &vaoId);
 }
 
 void Shaders::Shader::compile() {
@@ -42,19 +44,15 @@ void Shaders::Shader::compile() {
   GLint vertex, fragment;
   int success;
   char infoLog[512];
-  glGenVertexArrays(1, &vaoId);
-  glBindVertexArray(vaoId);
 
   // add vertices to VAO
-  unsigned int VBO;
-  glGenBuffers(1, &VBO); 
-
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glGenVertexArrays(1, &vaoId);
+  glGenBuffers(1, &vboId); 
+  
+  glBindVertexArray(vaoId);
+  glBindBuffer(GL_ARRAY_BUFFER, vboId);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  glBindBuffer(GL_ARRAY_BUFFER, vaoId);
-  glBufferData(GL_ARRAY_BUFFER, vertexSize, vertices, GL_STATIC_DRAW);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, vertexSize, (void *) 0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, vertexSize * sizeof(float), (void *) 0);
   glEnableVertexAttribArray(0);
 
   // compile vertexShader

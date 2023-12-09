@@ -40,11 +40,11 @@ int main(void) {
 
   Window::Window *mainWindow = new Window::Window(800, 600, "namiwa main window!");
   float vertices[] = {
-    -0.5f, -0.5f, 0.0f,
-     0.5f, -0.5f, 0.0f,
-     0.0f,  0.5f, 0.0f
+    0.5f, -0.5f, 0.5f,
+    0.5f, -0.5f, 0.0f,
+    0.0f,  0.5f, 0.0f
   }; 
-  Shaders::Shader ourShader("./src/assets/shaders/vertex/triangle.vs", "./src/assets/shaders/fragment/triangle.fs", vertices, 9);
+  Shaders::Shader ourShader("./src/assets/shaders/vertex/triangle.vs", "./src/assets/shaders/fragment/triangle.fs", vertices, sizeof(vertices) / sizeof(float));
   printGlError();
   // TODO: store in clean up func later.
   mainWindow->displayWindow(&shaderWrapper, ourShader);
