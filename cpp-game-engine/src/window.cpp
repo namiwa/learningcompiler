@@ -2,21 +2,26 @@
 #include "window/window.hpp"
 #include "shaders/shaders.hpp"
 
-void Window::processExit(GLFWwindow *window) {
-  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+void Window::processExit(GLFWwindow *window)
+{
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+  {
     glfwSetWindowShouldClose(window, 1);
   }
 }
 
-void Window::windowErrorHandle(int error, const char *description) {
+void Window::windowErrorHandle(int error, const char *description)
+{
   std::cerr << "Windowing Error: " << description << std::endl;
 }
 
-void Window::framebufferSizeHandle(GLFWwindow *window, int width, int height) {
+void Window::framebufferSizeHandle(GLFWwindow *window, int width, int height)
+{
   glViewport(0, 0, width, height);
 }
 
-Window::Window::Window(int height, int width, const char *title) {
+Window::Window::Window(int height, int width, const char *title)
+{
   _window = nullptr;
   _title = title;
   _height = height;
@@ -31,18 +36,20 @@ Window::Window::Window(int height, int width, const char *title) {
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
   glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-  
+
   std::cout << "Window creation..." << std::endl;
 
   _window = glfwCreateWindow(_width, _height, _title, NULL, NULL);
-  if (!_window) {
+  if (!_window)
+  {
     std::cerr << "Window creation failed" << std::endl;
     return;
   }
 
   glfwMakeContextCurrent(_window);
-  int status = gladLoadGL();
-  if (!status) {
+  int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+  if (!status)
+  {
     std::cerr << "Failed to get init GLAD to OpenGL" << std::endl;
     return;
   }
@@ -52,14 +59,17 @@ Window::Window::Window(int height, int width, const char *title) {
 
 Window::Window::~Window() { glfwDestroyWindow(_window); }
 
-void Window::Window::terminate() {
+void Window::Window::terminate()
+{
   glfwDestroyWindow(_window);
 }
 
-void Window::Window::displayWindow(std::function<void(Shaders::Shader&)> fp, Shaders::Shader& shader) {
-  while (!glfwWindowShouldClose(_window)) {
+void Window::Window::displayWindow(std::function<void(Shaders::Shader *)> fp, Shaders::Shader *shader)
+{
+  while (!glfwWindowShouldClose(_window))
+  {
     // clean drawing surface for color and depth
-    glClearColor(1.0f, 1.0f, 1.0f, 0.5f);
+    glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glfwGetFramebufferSize(_window, &_width, &_height);
     processExit(_window);
