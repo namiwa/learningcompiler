@@ -35,7 +35,7 @@ Window::Window::Window(int height, int width, const char *title)
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+  glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 #ifdef __APPLE__
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
@@ -51,6 +51,8 @@ Window::Window::Window(int height, int width, const char *title)
   }
 
   glfwMakeContextCurrent(_window);
+  glfwSetFramebufferSizeCallback(_window, framebufferSizeHandle);
+  glfwSwapInterval(1);
   int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
   if (!status)
   {
@@ -58,15 +60,12 @@ Window::Window::Window(int height, int width, const char *title)
     return;
   }
   // get version info
-  const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
-  const GLubyte* version = glGetString(GL_VERSION); // version as a string
-  const GLubyte* glsl = glGetString(GL_SHADING_LANGUAGE_VERSION); // version as a string
+  const GLubyte *renderer = glGetString(GL_RENDERER);             // get renderer string
+  const GLubyte *version = glGetString(GL_VERSION);               // version as a string
+  const GLubyte *glsl = glGetString(GL_SHADING_LANGUAGE_VERSION); // version as a string
   printf("Renderer: %s\n", renderer);
   printf("OpenGL version supported %s\n", version);
-	printf("GLSL version supported %s\n", glsl);
-  glViewport(0, 0, _width, _height);
-	glfwSetFramebufferSizeCallback(_window, framebufferSizeHandle);
-	glfwSwapInterval(1);
+  printf("GLSL version supported %s\n", glsl);
 }
 
 Window::Window::~Window() { glfwDestroyWindow(_window); }
@@ -82,15 +81,19 @@ void Window::Window::displayWindow(std::function<void(Shaders::Shader *)> fp, Sh
   {
     // clean drawing surface for color and depth
     processExit(_window);
+    printGlError();
 
     glClearColor(0.1f, 0.2f, 0.3f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+    printGlError();
 
     // call the game state render function below
     fp(shader);
+    printGlError();
 
-    glfwPollEvents();
     glfwSwapBuffers(_window);
+    glfwPollEvents();
+    printGlError();
   }
   return;
 }
