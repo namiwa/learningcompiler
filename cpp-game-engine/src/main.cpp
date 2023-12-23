@@ -1,20 +1,14 @@
 #include "common/common.h"
 #include "window/window.hpp"
+#include "shaders/shaders.hpp"
 
 #include <iostream>
+#include <string>
 
-const char *vertexShaderSource = "#version 330 core\n"
-                                 "layout (location = 0) in vec3 aPos;\n"
-                                 "void main()\n"
-                                 "{\n"
-                                 "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-                                 "}\0";
-const char *fragmentShaderSource = "#version 330 core\n"
-                                   "out vec4 FragColor;\n"
-                                   "void main()\n"
-                                   "{\n"
-                                   "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-                                   "}\n\0";
+std::string vpath = "./src/assets/shaders/vertex/triangle.glsl";
+std::string fpath = "./src/assets/shaders/fragment/triangle.glsl";
+auto vertexShaderSource = Shaders::setCharsFromFile(vpath);
+auto fragmentShaderSource = Shaders::setCharsFromFile(fpath);
 
 int main()
 {
@@ -28,7 +22,8 @@ int main()
     // ------------------------------------
     // vertex shader
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    const char *vsource = vertexShaderSource.c_str();
+    glShaderSource(vertexShader, 1, &vsource, NULL);
     glCompileShader(vertexShader);
     // check for shader compile errors
     int success;
@@ -42,7 +37,8 @@ int main()
     }
     // fragment shader
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    const char *fsource = fragmentShaderSource.c_str();
+    glShaderSource(fragmentShader, 1, &fsource, NULL);
     glCompileShader(fragmentShader);
     // check for shader compile errors
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
