@@ -9,7 +9,8 @@
 
 using namespace ghc;
 
-std::string Shaders::setCharsFromFile(std::string &path) {
+std::string Shaders::setCharsFromFile(std::string &path)
+{
   filesystem::path filepath = File::cleanPath(path);
   if (!File::pathExists(filepath))
     return "";
@@ -18,138 +19,136 @@ std::string Shaders::setCharsFromFile(std::string &path) {
   return File::getFileAsString(filepath.string());
 }
 
-Shaders::Shader::Shader(std::string vertexRoot, std::string fragmentRoot,
-                        float verticesData[], unsigned int vertexLen) {
+Shaders::Shader::Shader(std::string &vertexRoot, std::string &fragmentRoot,
+                        std::vector<float> &verticesData)
+{
   vertexContent = setCharsFromFile(vertexRoot);
   fragmentContent = setCharsFromFile(fragmentRoot);
-  vertexSize = vertexLen;
-  vertices = (float *)std::malloc(vertexLen * sizeof(float));
-  std::cout << "size of vertices: " << vertexSize << "\n";
-  for (unsigned int i = 0; i < vertexLen; i++) {
-    vertices[i] = verticesData[i];
-    std::cout << vertices[i] << std::endl;
-  }
+  vertexSize = verticesData.size();
+  vertices = verticesData;
   compile();
 }
 
-Shaders::Shader::~Shader() {
-  if (glIsProgram(shaderId)) {
-    glDeleteProgram(shaderId);
-  }
-  free(vertices);
+Shaders::Shader::~Shader()
+{
+  glDeleteVertexArrays(1, &VAO);
+  glDeleteBuffers(1, &VBO);
+  glDeleteProgram(shaderProgram);
 }
 
-void Shaders::Shader::compile() {
-  std::cout << "compling shaders\n";
-  GLint vertex, fragment;
-  int success = 0;
+void Shaders::Shader::compile()
+{
+  // ------------------------------------
+  // vertex shader
+  unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+  const char *vsource = vertexContent.c_str();
+  glShaderSource(vertexShader, 1, &vsource, NULL);
+  glCompileShader(vertexShader);
+  // check for shader compile errors
+  int success;
   char infoLog[512];
-
-
-  // compile vertexShader
-  vertex = glCreateShader(GL_VERTEX_SHADER);
-  std::cout << "compiling vertexContent: " << vertexContent << std::endl;
-  const char *vt = vertexContent.c_str();
-  std::cout << vt << " testing vertex content\n";
-  glShaderSource(vertex, 1, &vt, NULL);
-  glCompileShader(vertex);
-
-  glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
-  if (!success) {
-    glGetShaderInfoLog(vertex, 512, NULL, infoLog);
-    std::cout << "Error vertex shader compilation error\n"
+  glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+  if (!success)
+  {
+    glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+    std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
               << infoLog << std::endl;
-    glDeleteShader(vertex);
-    return;
   }
-  std::cout << "vertex shader created " << vertex << "\n";
-	printGlError();
-
-  fragment = glCreateShader(GL_FRAGMENT_SHADER);
-  std::cout << "compiling fragmentContent: " << fragmentContent << std::endl;
-  const char *ft = fragmentContent.c_str();
-  std::cout << ft << " testing fragment content\n";
-  glShaderSource(fragment, 1, &ft, NULL);
-  glCompileShader(fragment);
-
-  glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
-  if (!success) {
-    glGetShaderInfoLog(fragment, 512, NULL, infoLog);
-    std::cout << "Error fragment shader compilation error\n"
+  // fragment shader
+  unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+  const char *fsource = fragmentContent.c_str();
+  glShaderSource(fragmentShader, 1, &fsource, NULL);
+  glCompileShader(fragmentShader);
+  // check for shader compile errors
+  glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+  if (!success)
+  {
+    glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+    std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n"
               << infoLog << std::endl;
-    glDeleteShader(fragment);
-    return;
   }
-  std::cout << "fragment shader created " << fragment << "\n";
-	printGlError();
-
-  shaderId = glCreateProgram();
-  glAttachShader(shaderId, vertex);
-  glAttachShader(shaderId, fragment);
-  glLinkProgram(shaderId);
-  glGetProgramiv(shaderId, GL_LINK_STATUS, &success);
-  if (!success) {
-    glGetProgramInfoLog(shaderId, 512, NULL, infoLog);
-    std::cout << "Error shader link fail\n" << infoLog << std::endl;
-    glDetachShader(shaderId, vertex);
-    glDetachShader(shaderId, fragment);
-    glDeleteShader(vertex);
-    glDeleteShader(fragment);
-    glDeleteProgram(shaderId);
-    return;
+  // link shaders
+  shaderProgram = glCreateProgram();
+  glAttachShader(shaderProgram, vertexShader);
+  glAttachShader(shaderProgram, fragmentShader);
+  glLinkProgram(shaderProgram);
+  // check for linking errors
+  glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+  if (!success)
+  {
+    glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+    std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
+              << infoLog << std::endl;
   }
-  std::cout << "shader program created " << shaderId << "\n";
+  glDeleteShader(vertexShader);
+  glDeleteShader(fragmentShader);
 
-  glDeleteShader(vertex);
-  glDeleteShader(fragment);
+  // set up vertex data (and buffer(s)) and configure vertex attributes
+  // ------------------------------------------------------------------
 
-  glGenVertexArrays(1, &vaoId);
-  glGenBuffers(1, &vboId);
-  glBindVertexArray(vaoId);
+  glGenVertexArrays(1, &VAO);
+  glGenBuffers(1, &VBO);
+  // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+  glBindVertexArray(VAO);
 
-  glBindBuffer(GL_ARRAY_BUFFER, vboId);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STATIC_DRAW);
 
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-	glBindVertexArray(0);
-	glValidateProgram(shaderId);
-	printGlError();
+  // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+  glValidateProgram(shaderProgram);
+  printGlError();
+
+  // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
+  // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
+  glBindVertexArray(0);
+
+  // uncomment this call to draw in wireframe polygons.
+  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
-void Shaders::Shader::use() {
+void Shaders::Shader::use()
+{
   std::cout << "using shaders\n";
-  glUseProgram(shaderId);
-	glBindVertexArray(vaoId);
+  glUseProgram(shaderProgram);
+  glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
   glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
-unsigned int Shaders::Shader::getId() { return shaderId; }
+unsigned int Shaders::Shader::getId() { return shaderProgram; }
 
-void Shaders::Shader::setBool(const std::string &name, bool value) const {
-  glUniform1i(glGetUniformLocation(shaderId, name.c_str()), (int)value);
+void Shaders::Shader::setBool(const std::string &name, bool value) const
+{
+  glUniform1i(glGetUniformLocation(shaderProgram, name.c_str()), (int)value);
 }
 
-void Shaders::Shader::setInt(const std::string &name, int value) const {
-  glUniform1i(glGetUniformLocation(shaderId, name.c_str()), value);
+void Shaders::Shader::setInt(const std::string &name, int value) const
+{
+  glUniform1i(glGetUniformLocation(shaderProgram, name.c_str()), value);
 }
 
-void Shaders::Shader::setFloat(const std::string &name, float value) const {
-  glUniform1i(glGetUniformLocation(shaderId, name.c_str()), value);
+void Shaders::Shader::setFloat(const std::string &name, float value) const
+{
+  glUniform1i(glGetUniformLocation(shaderProgram, name.c_str()), value);
 }
 
-void Shaders::Shader::printInfo() {
-  std::cout << "shaderId: " << shaderId << "\n";
-  std::cout << "vertexContent:\n" << vertexContent << "\n";
-  std::cout << "fragmentContent:\n" << fragmentContent << "\n";
-  std::cout << "vertexSize: " << vertexSize << "\n";
-  for (unsigned int i = 0; i < vertexSize; i++) {
+void Shaders::Shader::printInfo()
+{
+  std::cout << "shaderId: " << shaderProgram << "\n";
+  std::cout << "vertexContent:\n"
+            << vertexContent << "\n";
+  std::cout << "fragmentContent:\n"
+            << fragmentContent << "\n";
+  std::cout << "vertexSize: " << vertices.size() << "\n";
+  for (unsigned int i = 0; i < vertices.size(); i++)
+  {
     std::cout << vertices[i] << " ";
   }
   std::cout << std::endl;
-  std::cout << "vaoId: " << vaoId << "\n";
-  std::cout << "vboId: " << vboId << "\n";
+  std::cout << "vaoId: " << VAO << "\n";
+  std::cout << "vboId: " << VBO << "\n";
 }
