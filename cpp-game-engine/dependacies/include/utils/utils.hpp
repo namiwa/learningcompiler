@@ -1,10 +1,10 @@
 #ifndef utils_hpp
 #define utils_hpp
 
-template <class T>
-unsigned int getArrayLen(T arr[])
-{
-  return (unsigned int)sizeof(arr) / sizeof(float);
-}
+#include "common/common.h"
+#include <iostream>
+
+template <class T> int getArrayLen(T arr[]);
+void printGlError();
 
 #endif // !utils_hpp
