@@ -1,6 +1,21 @@
 # Learning to build game engine from scratch
 
 
+## Installation
+
+ensure running either on linux (or windows wsl) or macos.
+todo: run install script
+run platform build script
+window should open and game should be running on said screen.
+
+
+## Attributions
+* GLFW/GLAD windowing: 
+  - https://github.com/Dav1dde/glad?tab=readme-ov-file
+  - https://glad.dav1d.de/
+* filesystem: https://github.com/gulrak/filesystem
+
+
 ## Motivation
 This documents the beginning of learning game development from scratch. Starting with:
 
