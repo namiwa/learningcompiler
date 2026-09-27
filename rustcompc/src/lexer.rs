@@ -9,8 +9,6 @@ pub struct LexerError {
     msg: String,
 }
 
-type Result<'a, T> = std::result::Result<T, LexerError>;
-
 // Generation of an error is completely separate from how it is displayed.
 // There's no need to be concerned about cluttering complex logic with the display style.
 //
@@ -18,7 +16,8 @@ type Result<'a, T> = std::result::Result<T, LexerError>;
 // which string failed to parse without modifying our types to carry that information.
 impl fmt::Display for LexerError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Lexer Error: invalid token {}", self.msg)
+        write!(f, "Lexer Error: invalid token {}", self.msg);
+        fmt::Result(Ok(self))
     }
 }
 
@@ -185,7 +184,7 @@ impl Lexer {
                 })
             }
             c if c.is_ascii_digit() => {
-                let start_pos = self.cur_pos; 
+                let start_pos = self.cur_pos;
                 while self.peek().is_ascii_digit() {
                     self.next_char();
                 }

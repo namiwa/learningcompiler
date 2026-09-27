@@ -1,0 +1,9 @@
+[package]
+name = "process-finance"
+version = "0.1.0"
+edition = "2024"
+authors = ["namiwa"]
+
+[dependencies]
+csv = "1.4.0"
+serde = { version = "1.0.229", features = ["derive"] }
