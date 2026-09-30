@@ -36,14 +36,28 @@ fn process_file(fp: PathBuf) -> Result<String, std::io::Error> {
             Err(content)
         }
         Ok(content) => {
-            let mut store: Vec<&str> = vec![];
+            let mut store: Vec<String> = vec![];
             for line in content.lines() {
                 if line.is_empty() {
                     continue;
                 } else {
                     let val = line.trim();
-                    println!("{}", val);
-                    store.push(val);
+                    if val.is_empty() {
+                        continue;
+                    }
+                    let split: String = val
+                        .split(',')
+                        .filter(|f| !f.is_empty())
+                        .map(|f| f.trim())
+                        .fold(String::new(), |mut acc, w| {
+                            if !w.is_empty() {
+                                print!("{}-", w);
+                                acc.push_str(w);
+                            }
+                            acc
+                        });
+                    println!("");
+                    store.push(split);
                 }
             }
 
